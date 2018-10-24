@@ -11,6 +11,9 @@ namespace Arcanoid
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont spriteFont;
+
+        Manager manager = new Manager();
 
         public Game1()
         {
@@ -20,34 +23,24 @@ namespace Arcanoid
 
         protected override void Initialize()
         {
-
+            graphics.PreferredBackBufferWidth = 400;  // set this value to the desired width of your window
+            graphics.PreferredBackBufferHeight = 500;   // set this value to the desired height of your window
+            graphics.ApplyChanges();
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
+            Globals.contentManager = Content;
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        }
-
-        protected override void UnloadContent()
-        {
-
+            spriteFont = Content.Load<SpriteFont>("Font");
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
+            manager.Update();
             base.Update(gameTime);
-        }
-
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            base.Draw(gameTime);
         }
     }
 }
