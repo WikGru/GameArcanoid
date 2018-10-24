@@ -44,9 +44,12 @@
     <Compile Include="Game1.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Manager.cs" />
-    <Compile Include="MenuComponent.cs" />
+    <Compile Include="Paddle.cs" />
+    <Compile Include="States\GameplayComponent.cs" />
+    <Compile Include="States\MenuComponent.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="States\SplashComponent.cs" />
     <Compile Include="StateTemplate.cs" />
   </ItemGroup>
   <ItemGroup>
