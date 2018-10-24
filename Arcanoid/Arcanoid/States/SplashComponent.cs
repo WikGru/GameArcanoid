@@ -36,6 +36,7 @@ namespace Arcanoid.States
             Globals.spriteBatch.Begin();
             Globals.spriteBatch.Draw(splash, new Rectangle(100, 50, 400, 500), Color.White);
             Globals.spriteBatch.Draw(splash, new Rectangle(0, 0, 600, 600), new Color(Color.Black,alpha));
+            //Globals.spriteBatch.Draw(splash, new Rectangle(0, 400, 600, 200), Color.Black);
             Globals.spriteBatch.End();
         }
 

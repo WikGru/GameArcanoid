@@ -34,22 +34,27 @@ namespace Arcanoid.States
 
         public void LoadContent()
         {
+            //Pole Gry
             gameSpace = new Rectangle(30, 40, 340, 580);
             gameSpaceLeft = new Rectangle(gameSpace.Left, gameSpace.Top, 0, gameSpace.Height);
             gameSpaceTop = new Rectangle(gameSpace.Left, gameSpace.Top, gameSpace.Width, 0);
             gameSpaceRight = new Rectangle(gameSpace.Right, gameSpace.Top, 0, gameSpace.Height);
 
-            paddle = new Paddle(60, 3, (gameSpace.Width / 2));
-            paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
+            //paddle
+            paddle = new Paddle(72, 3, (gameSpace.Width / 2));
+            paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
-           
-            ball = new Ball(4, 15, 0, 1, gameSpace.Center.X - 10, 300);
+            //ball
+            ball = new Ball(5, 15, 0, 1, gameSpace.Center.X - 10, 300);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
 
+            //tekstury 
             backgroundTexture = Globals.contentManager.Load<Texture2D>("background");
             boundsTexture = Globals.contentManager.Load<Texture2D>("bounds");
             paddleTexture = Globals.contentManager.Load<Texture2D>("paddle");
             ballTexture = Globals.contentManager.Load<Texture2D>("ball");
+
+            //flaga do loadContent
             isLoaded = !isLoaded;
         }
 
@@ -57,28 +62,26 @@ namespace Arcanoid.States
         {
             if (!isLoaded) LoadContent();
 
-
-            for (int i = 0; i < 2; i++)
+            // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
+            for (int i = 0; i < 1; i++)
             {
-                MoveBall(0.5f);
-                ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
+                MoveBall(1);
                 GameSpaceCollision();
                 PaddleCollision();
             }
             MovePaddle();
 
-            paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
-            
+
             //Aktualizacja pozycji fragmentów paddle
-            paddleSectionLeft.Size = new Point(20, 0);
+            paddleSectionLeft.Size = new Point(paddleBounds.Width / 3, 0);
             paddleSectionLeft.Location = new Point(paddleBounds.Left, paddleBounds.Top);
 
-            paddleSectionCenter.Size = new Point(20, 0);
-            paddleSectionCenter.Location = new Point(paddleBounds.Left + 20, paddleBounds.Top);
+            paddleSectionCenter.Size = new Point(paddleBounds.Width / 3, 0);
+            paddleSectionCenter.Location = new Point(paddleBounds.Left + paddleBounds.Width / 3, paddleBounds.Top);
 
-            paddleSectionRight.Size = new Point(20, 0);
-            paddleSectionRight.Location = new Point(paddleBounds.Left + 40, paddleBounds.Top);
-            
+            paddleSectionRight.Size = new Point(paddleBounds.Width / 3, 0);
+            paddleSectionRight.Location = new Point(paddleBounds.Left + paddleBounds.Width / 3 * 2, paddleBounds.Top);
+
             Draw();
 
         }
@@ -86,6 +89,8 @@ namespace Arcanoid.States
         public override void Draw()
         {
             Globals.spriteBatch.Begin();
+
+            //BACKGROUND
             Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, 360, 580), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
 
@@ -94,6 +99,10 @@ namespace Arcanoid.States
             //PADDLE
             Globals.spriteBatch.Draw(paddleTexture, paddleBounds, Color.White);
 
+            //Wizualizacja sekcji paddle
+            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
+            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionCenter, Color.Green);
+            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionRight, Color.Magenta);
 
             Globals.spriteBatch.End();
         }
@@ -103,7 +112,8 @@ namespace Arcanoid.States
             if (ballBounds.Intersects(gameSpaceLeft) || ballBounds.Intersects(gameSpaceRight))
             {
                 ball.DirectionX *= -1;
-            }else if (ballBounds.Intersects(gameSpaceTop))
+            }
+            else if (ballBounds.Intersects(gameSpaceTop))
             {
                 ball.DirectionY *= -1;
             }
@@ -113,16 +123,42 @@ namespace Arcanoid.States
         {
             if (ballBounds.Intersects(paddleSectionLeft))
             {
-                ball.DirectionX -= 0.5f;
+                if (ball.DirectionX == 0)
+                {
+                    ball.DirectionX = -0.5f;
+                }
+                else if (ball.DirectionX > 0)
+                {
+                    ball.DirectionX -= 0.25f;
+                }
+                else
+                {
+                    ball.DirectionX = -0.5f;
+                }
                 ball.DirectionY *= -1;
             }
             else if (ballBounds.Intersects(paddleSectionCenter))
             {
+                if (ball.DirectionX == 0)
+                {
+                    ball.DirectionX -= 0.5f;
+                }
                 ball.DirectionY *= -1;
             }
             else if (ballBounds.Intersects(paddleSectionRight))
             {
-                ball.DirectionX += 0.5f;
+                if (ball.DirectionX == 0)
+                {
+                    ball.DirectionX = 0.5f;
+                }
+                else if (ball.DirectionX < 0)
+                {
+                    ball.DirectionX += 0.25f;
+                }
+                else
+                {
+                    ball.DirectionX = 0.5f;
+                }
                 ball.DirectionY *= -1;
             }
         }
@@ -131,6 +167,8 @@ namespace Arcanoid.States
         {
             ball.PositionX += (int)(ball.Velocity * ball.DirectionX * multiplier);
             ball.PositionY += (int)(ball.Velocity * ball.DirectionY * multiplier);
+
+            ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
         }
 
         public void MovePaddle()
@@ -146,11 +184,12 @@ namespace Arcanoid.States
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
                 paddle.PositionX += paddle.Velocity;
-                if (paddle.PositionX + paddleBounds.Width/2 >= gameSpace.Width - 5)
+                if (paddle.PositionX + paddleBounds.Width / 2 >= gameSpace.Width - 5)
                 {
-                    paddle.PositionX = gameSpace.Width - paddleBounds.Width/2 -5;
+                    paddle.PositionX = gameSpace.Width - paddleBounds.Width / 2 - 5;
                 }
             }
+            paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
         }
     }
 }
