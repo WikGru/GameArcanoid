@@ -13,6 +13,9 @@ namespace Arcanoid
         SpriteBatch spriteBatch;
         SpriteFont spriteFont;
 
+        private Texture2D backgroundTexture;
+        private Rectangle backgroundSize;
+
         Manager manager = new Manager();
 
         public Game1()
@@ -35,6 +38,12 @@ namespace Arcanoid
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = Content.Load<SpriteFont>("Font");
+
+           
+
+
+
+
         }
 
         protected override void Update(GameTime gameTime)
