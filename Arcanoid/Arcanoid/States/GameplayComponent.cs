@@ -19,7 +19,7 @@ namespace Arcanoid.States
         Texture2D boundsTexture;
         Texture2D paddleTexture;
         Texture2D ballTexture;
-        Rectangle gameSpace = new Rectangle(10, 20, 380, 580);
+        Rectangle gameSpace = new Rectangle(30, 20, 370, 580);
         Rectangle paddleBounds;
 
         public void LoadContent()
@@ -58,9 +58,9 @@ namespace Arcanoid.States
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
             {
                 paddle.PositionX -= paddle.Velocity;
-                if (paddle.PositionX <= 0)
+                if (paddle.PositionX <= gameSpace.Location.X)
                 {
-                    paddle.PositionX = 0 + 3;
+                    paddle.PositionX = 5 + gameSpace.Location.X;
                 }
                 paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
 
@@ -68,9 +68,9 @@ namespace Arcanoid.States
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
                 paddle.PositionX += paddle.Velocity;
-                if (paddle.PositionX + paddleBounds.Width >= Globals.graphics.PreferredBackBufferWidth)
+                if (paddle.PositionX + paddleBounds.Width >= gameSpace.Width)
                 {
-                    paddle.PositionX = Globals.graphics.PreferredBackBufferWidth - 3 - paddleBounds.Width;
+                    paddle.PositionX = gameSpace.Width - 5 - paddleBounds.Width;
                 }
                 paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
 
