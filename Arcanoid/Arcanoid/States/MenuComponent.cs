@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Arcanoid
 {
@@ -21,7 +22,8 @@ namespace Arcanoid
 
         Color normal = Color.White;
         Color highLight = new Color(255,211,5);
-        Song song = Globals.contentManager.Load<Song>("menu_dzwiek");
+        Song song;
+        Texture2D backgroundtexture;
 
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
@@ -48,8 +50,8 @@ namespace Arcanoid
         private void MeasureMenu()
         {
 
-            
-           
+            song = Globals.contentManager.Load<Song>("menu_dzwiek");
+            backgroundtexture = Globals.contentManager.Load<Texture2D>("back_menu");
             height = 0;
             width = 0;
             foreach (enMenuItems item in (enMenuItems[])Enum.GetValues(typeof(enMenuItems)))
@@ -141,7 +143,7 @@ namespace Arcanoid
             Color tint;
             
             Globals.spriteBatch.Begin();
-            
+            Globals.spriteBatch.Draw(backgroundtexture, new Rectangle(0, 0, 600, 600), Color.White);
 
             foreach (enMenuItems i in (enMenuItems[])Enum.GetValues(typeof(enMenuItems)))
             {
@@ -160,6 +162,7 @@ namespace Arcanoid
                     tint);
                 location.Y += Globals.spriteFont.LineSpacing + 5;
             }
+            
             Globals.spriteBatch.End();
         }
 
