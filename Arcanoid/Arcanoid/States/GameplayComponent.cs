@@ -49,10 +49,10 @@ namespace Arcanoid.States
 
         public void LoadContent()
         {
-            LoadGameSpace();
-            LoadLevel("Content/lvl1.txt");
-            LoadDynamics();
-            LoadTextures();
+            LoadGameSpace();    //gameBounds, background
+            LoadLevel("Content/lvl1.txt");  //blocks
+            LoadDynamics(); //pad, ball
+            LoadTextures(); // textures
 
             //flaga do loadContent
             isLoaded = !isLoaded;
@@ -60,21 +60,15 @@ namespace Arcanoid.States
 
         public override void Update(GameTime gameTime)
         {
-            if (!isLoaded) LoadContent();
+            if (!isLoaded) LoadContent(); // on first encounter load content
 
             keyboardState = Keyboard.GetState();
 
-            if (CheckKey(Keys.Space) && isLevelRunning == true) isStarted = true; //release ball from paddle
-            if (isStarted && ball.DirectionY == 0) ball.DirectionY = -1; // release part 2
-            if (!isStarted) ball.PositionX = paddleBounds.Center.X - ball.Size / 2; //starting position of ball sticked to paddle
+            if (CheckKey(Keys.Tab)) blockList.Clear(); //TESTING ONLY finish level on TAB
 
-            if (blockList.All(x => x.State == 3)) //if only indestructible blocks are left => finish level
-            {
-                LevelComplete();
-            }
-            if (CheckKey(Keys.Space)) isLevelRunning = true;   //enable drawing to simulate to start next level
-
-
+            StartGame(); //on SPACE
+            IfLevelCompleted(); // go to next level on SPACE
+           
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
             for (int i = 0; i < 2; i++)
             {
@@ -294,6 +288,22 @@ namespace Arcanoid.States
             ballTexture = Globals.contentManager.Load<Texture2D>("ball");
 
             blockTexture = Globals.contentManager.Load<Texture2D>("block");
+        }
+
+        public void StartGame()
+        {
+            if (CheckKey(Keys.Space) && isLevelRunning == true) isStarted = true; //release ball from paddle
+            if (isStarted && ball.DirectionY == 0) ball.DirectionY = -1; // release part 2
+            if (!isStarted) ball.PositionX = paddleBounds.Center.X - ball.Size / 2; //starting position of ball sticked to paddle
+        }
+
+        public void IfLevelCompleted()
+        {
+            if (blockList.All(x => x.State == 3)) //if only indestructible blocks are left => finish level
+            {
+                LevelComplete();
+            }
+            if (CheckKey(Keys.Space)) isLevelRunning = true;   //enable drawing to simulate to start next level
         }
 
         private bool CheckKey(Keys theKey)
