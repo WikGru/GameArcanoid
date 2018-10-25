@@ -16,27 +16,26 @@ namespace Arcanoid
         private int state;
         private int row;
         private int column;
-        private Color color;
+        private readonly Color[] color;
         private Rectangle bounds;
+        private Rectangle top;
+        private Rectangle bottom;
+        private Rectangle left;
+        private Rectangle right;
+
 
         public Block(int state, int row, int column)
         {
             this.state = state;
             this.row = row + 1;
             this.column = column + 1;
-            bounds = new Rectangle(column * 30+35, 60 + row * 15, (int)Globals.blockSize.X, (int)Globals.blockSize.Y);
-            switch (state)
-            {
-                case 1:
-                    color = Color.Orange;
-                    break;
-                case 2:
-                    color = Color.Red;
-                    break;
-                case 3:
-                    color = Color.White;
-                    break;
-            }
+            bounds = new Rectangle(column * 30 + 35, 60 + row * 15, (int)Globals.blockSize.X, (int)Globals.blockSize.Y);
+            color = new Color[4] { new Color(0,0,0,0), Color.Orange, Color.Red, Color.Gray };
+
+            top = new Rectangle(bounds.Left, bounds.Top, bounds.Width, 3);
+            bottom = new Rectangle(bounds.Left, bounds.Bottom, bounds.Width, 3);
+            left = new Rectangle(bounds.Left, bounds.Top, 3, bounds.Height);
+            right = new Rectangle(bounds.Right, bounds.Top, 3, bounds.Height);
         }
 
         public int State
@@ -67,7 +66,7 @@ namespace Arcanoid
             }
         }
 
-        public Color Color
+        public Color[] Colour
         {
             get
             {
@@ -82,5 +81,10 @@ namespace Arcanoid
                 return bounds;
             }
         }
+
+        public Rectangle Top { get { return top; } set { top = value; } }
+        public Rectangle Bottom { get { return bottom; } set { bottom = value; } }
+        public Rectangle Left { get { return left; } set { left = value; } }
+        public Rectangle Right { get { return right; } set { right = value; } }
     }
 }

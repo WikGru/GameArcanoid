@@ -24,11 +24,11 @@ namespace Arcanoid.States
         //BALL
         Ball ball;
         Rectangle ballBounds;
+        Vector2 ballBoundsPrecise;
         Texture2D ballTexture;
         //BLOCK
         List<Block> blockList = new List<Block>();
         Block block;
-        Rectangle blockBounds;
         Texture2D blockTexture;
         //GAMESPACE
         Texture2D backgroundTexture;
@@ -53,10 +53,11 @@ namespace Arcanoid.States
             if (!isLoaded) LoadContent();
 
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 2; i++)
             {
-                MoveBall(1);
+                MoveBall(0.5f);
                 GameSpaceCollision();
+                BlocksCollision();
                 if (ball.DirectionY > 0) PaddleCollision();
             }
             MovePaddle();
@@ -87,9 +88,18 @@ namespace Arcanoid.States
             //BLOCK TEST
             //Globals.spriteBatch.Draw(blockTexture, blockBounds, block.Color);
 
-            foreach(Block block in blockList)
+            foreach (Block block in blockList)
             {
-                Globals.spriteBatch.Draw(blockTexture, block.Bounds, block.Color);
+                if (block.State != 0)
+                {
+                    Globals.spriteBatch.Draw(blockTexture, block.Bounds, block.Colour[block.State]);
+                }
+
+                //Wizualizacja rysowanych bloków
+                //Globals.spriteBatch.Draw(blockTexture, block.Bottom, Color.Magenta);
+                //Globals.spriteBatch.Draw(blockTexture, block.Left, Color.Magenta);
+                //Globals.spriteBatch.Draw(blockTexture, block.Right, Color.Magenta);
+                //Globals.spriteBatch.Draw(blockTexture, block.Top, Color.Magenta);
             }
             //BALL
             Globals.spriteBatch.Draw(ballTexture, ballBounds, Color.White);
@@ -106,9 +116,14 @@ namespace Arcanoid.States
 
         public void GameSpaceCollision()
         {
-            if (ballBounds.Intersects(gameSpaceLeft) || ballBounds.Intersects(gameSpaceRight))
+            if (ballBounds.Intersects(gameSpaceLeft))
             {
-                ball.DirectionX *= -1;
+                if (ball.DirectionX < 0) ball.DirectionX *= -1;
+
+            }
+            else if (ballBounds.Intersects(gameSpaceRight))
+            {
+                if (ball.DirectionX > 0) ball.DirectionX *= -1;
             }
             else if (ballBounds.Intersects(gameSpaceTop))
             {
@@ -160,10 +175,67 @@ namespace Arcanoid.States
             }
         }
 
+        public void BlocksCollision()
+        {
+            foreach (Block block in blockList)
+            {
+                if (ballBounds.Intersects(block.Bounds))
+                {
+                    if (ballBounds.Intersects(block.Top))
+                    {
+                        if (block.State != 0)
+                        {
+                            if (block.State != 3)
+                            {
+                                block.State--;
+                            }
+                            ball.DirectionY *= -1;
+                        }
+                    }
+                    else if (ballBounds.Intersects(block.Bottom))
+                    {
+                        if (block.State != 0)
+                        {
+                            if (block.State != 3)
+                            {
+                                block.State--;
+                            }
+                            ball.DirectionY *= -1;
+                        }
+                    }
+                    else if (ballBounds.Intersects(block.Left))
+                    {
+                        if (block.State != 0)
+                        {
+                            if (block.State != 3)
+                            {
+                                block.State--;
+                            }
+                            ball.DirectionX *= -1;
+                        }
+                    }
+                    else if (ballBounds.Intersects(block.Right))
+                    {
+                        if (block.State != 0)
+                        {
+                            if (block.State != 3)
+                            {
+                                block.State--;
+                            }
+                            ball.DirectionX *= -1;
+                        }
+                    }
+                    if (block.State == 0) blockList.Remove(block);
+                    break;
+                }
+            }
+        }
+
         public void MoveBall(float multiplier)
         {
-            ball.PositionX += (int)(ball.Velocity * ball.DirectionX * multiplier);
-            ball.PositionY += (int)(ball.Velocity * ball.DirectionY * multiplier);
+            ballBoundsPrecise = new Vector2(ball.Velocity * ball.DirectionX * multiplier, ball.Velocity * ball.DirectionY * multiplier);
+            ball.PositionX += (int)ballBoundsPrecise.X;
+            ball.PositionY += (int)ballBoundsPrecise.Y;
 
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
         }
@@ -201,20 +273,23 @@ namespace Arcanoid.States
         public void LoadDynamics()
         {
             //paddle
-            paddle = new Paddle(72, 3, (gameSpace.Width / 2));
+            paddle = new Paddle(200/*72*/, 4, (gameSpace.Width / 2));
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(5, 15, 0, 1, gameSpace.Center.X - 10, 300);
+            ball = new Ball(5, 20, 0, 1, gameSpace.Center.X - 10, 300);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
 
             //block test
             block = new Block(1, 1, 1);
-            for(int i = 0; i < 11; i++)
+            for (int i = 0; i < 11; i++)
             {
-                for(int j = 0; j < 11; j++)
+                for (int j = 0; j < 11; j++)
                 {
-                    blockList.Add(new Block(Globals.BlockMesh[i, j], i, j));
+                    if (Globals.BlockMesh[i, j] != 0)
+                    {
+                        blockList.Add(new Block(Globals.BlockMesh[i, j], i, j));
+                    }
                 }
             }
 
