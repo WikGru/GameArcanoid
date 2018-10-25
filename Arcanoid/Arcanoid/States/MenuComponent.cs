@@ -20,8 +20,8 @@ namespace Arcanoid
         public static enMenuItems selectedItem;
 
         Color normal = Color.White;
-        Color highLight = Color.Yellow;
-        Song song; 
+        Color highLight = new Color(255,211,5);
+        Song song = Globals.contentManager.Load<Song>("menu_dzwiek");
 
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
@@ -47,8 +47,9 @@ namespace Arcanoid
 
         private void MeasureMenu()
         {
-           
 
+            
+           
             height = 0;
             width = 0;
             foreach (enMenuItems item in (enMenuItems[])Enum.GetValues(typeof(enMenuItems)))
@@ -70,22 +71,36 @@ namespace Arcanoid
             return keyboardState.IsKeyUp(theKey) &&
                 oldKeyboardState.IsKeyDown(theKey);
         }
+        private void play_song_menu()
+        {
+            MediaPlayer.Play(song);
+            MediaPlayer.IsRepeating = true;
+        }
 
         public override void Update(GameTime gameTime)
         {
-           
+          
+            
+
             if (!isLoaded)
             {
-               
+             
+                       
                 MeasureMenu();
-               
+                play_song_menu();
             }
+            isLoaded = true;
+           
 
             keyboardState = Keyboard.GetState();
             if (CheckKey(Keys.Down))
             {
+                
+
                 selectedIndex++;
+
                 if (selectedIndex == Enum.GetNames(typeof(enMenuItems)).Length)
+                    
                     selectedIndex = 0;
             }
             if (CheckKey(Keys.Up))
@@ -97,13 +112,16 @@ namespace Arcanoid
 
             if (CheckKey(Keys.Enter))
             {
+               
                 switch (selectedItem)
                 {
                     case enMenuItems.Play:
+                        MediaPlayer.Stop();
                         Globals.currentState = Globals.EnStates.START;
                         
                         return;
                     case enMenuItems.Quit:
+                        MediaPlayer.Stop();
                         Globals.currentState = Globals.EnStates.EXIT;
                         return;
                 }
@@ -111,12 +129,14 @@ namespace Arcanoid
             oldKeyboardState = keyboardState;
 
             Draw();
+            MediaPlayer.Resume();
         }
 
        
         public override void Draw()
         {
            
+
             Vector2 location = position;
             Color tint;
             

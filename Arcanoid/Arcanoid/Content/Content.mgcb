@@ -56,6 +56,12 @@
 /processorParam:TextureFormat=Compressed
 /build:font.spritefont
 
+#begin menu_dzwiek.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:menu_dzwiek.mp3
+
 #begin paddle.PNG
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -67,6 +73,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:paddle.PNG
+
+#begin przycisk_dzwiek.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:przycisk_dzwiek.mp3
 
 #begin splash.png
 /importer:TextureImporter
