@@ -81,20 +81,15 @@ namespace Arcanoid
 
         public override void Update(GameTime gameTime)
         {
-          
-            
-
             if (!isLoaded)
             {
-             
-                       
                 MeasureMenu();
                 play_song_menu();
+                isLoaded = true;
             }
-            isLoaded = true;// deklaracja na true
-           
 
             keyboardState = Keyboard.GetState();
+
             if (CheckKey(Keys.Down))
             {
                 
@@ -128,6 +123,7 @@ namespace Arcanoid
                         return;
                 }
             }
+
             oldKeyboardState = keyboardState;
 
             Draw();
@@ -137,8 +133,6 @@ namespace Arcanoid
        
         public override void Draw()
         {
-           
-
             Vector2 location = position;
             Color tint;
             

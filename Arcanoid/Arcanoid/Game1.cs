@@ -31,7 +31,7 @@ namespace Arcanoid
         {
             Globals.spriteFont = Content.Load<SpriteFont>("font");
             Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
-            for(int i = 0; i < 11; i++)
+            for(int i = 0; i < 22; i++)
             {
                 for(int j = 0; j < 11; j++)
                 {

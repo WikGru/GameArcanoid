@@ -23,7 +23,7 @@ namespace Arcanoid
         }
 
 
-        public static int[,] BlockMesh = new int[11, 11];
+        public static int[,] BlockMesh = new int[22, 11];
         public static Vector2 firstBlock = new Vector2(30, 60);
         public static Vector2 blockSize = new Vector2(30, 15);
 

@@ -11,7 +11,12 @@ namespace Arcanoid.States
 {
     class GameplayComponent : StateTemplate
     {
+        KeyboardState keyboardState;
+        KeyboardState oldKeyboardState;
+
         private bool isLoaded = false;
+        private bool isStarted = false;
+
         //PADDLE
         Paddle paddle;
         Rectangle paddleBounds;
@@ -43,7 +48,7 @@ namespace Arcanoid.States
             LoadDynamics();
             LoadTextures();
 
-            
+
             //flaga do loadContent
             isLoaded = !isLoaded;
         }
@@ -51,6 +56,12 @@ namespace Arcanoid.States
         public override void Update(GameTime gameTime)
         {
             if (!isLoaded) LoadContent();
+
+            keyboardState = Keyboard.GetState();
+
+            if (CheckKey(Keys.Space)) isStarted = true;
+            if (isStarted && ball.DirectionY == 0) ball.DirectionY = -1;
+            if (!isStarted) ball.PositionX = paddleBounds.Center.X - ball.Size/2;
 
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
             for (int i = 0; i < 2; i++)
@@ -73,6 +84,8 @@ namespace Arcanoid.States
             paddleSectionRight.Size = new Point(paddleBounds.Width / 8 * 3, 0);
             paddleSectionRight.Location = new Point(paddleSectionCenter.Location.X + paddleSectionCenter.Size.X, paddleBounds.Top);
 
+            oldKeyboardState = keyboardState;
+
             Draw();
 
         }
@@ -82,7 +95,7 @@ namespace Arcanoid.States
             Globals.spriteBatch.Begin();
 
             //BACKGROUND
-            Globals.spriteBatch.Draw(blockTexture, new Rectangle(0, 0, Globals.graphics.PreferredBackBufferWidth, Globals.graphics.PreferredBackBufferHeight),Color.Black);
+            Globals.spriteBatch.Draw(blockTexture, new Rectangle(0, 0, Globals.graphics.PreferredBackBufferWidth, Globals.graphics.PreferredBackBufferHeight), Color.Black);
             Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, gameSpace.Width + 20, gameSpace.Height), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
 
@@ -279,12 +292,12 @@ namespace Arcanoid.States
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(3, 15, 0, 1, gameSpace.Center.X - 10, 300);
+            ball = new Ball(3, 15, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 15);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
 
             //block test
             block = new Block(1, 1, 1);
-            for (int i = 0; i < 11; i++)
+            for (int i = 0; i < 22; i++)
             {
                 for (int j = 0; j < 11; j++)
                 {
@@ -311,6 +324,10 @@ namespace Arcanoid.States
             blockTexture = Globals.contentManager.Load<Texture2D>("block");
         }
 
-
+        private bool CheckKey(Keys theKey)
+        {
+            return keyboardState.IsKeyUp(theKey) &&
+                oldKeyboardState.IsKeyDown(theKey);
+        }
     }
 }
