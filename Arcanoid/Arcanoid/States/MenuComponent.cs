@@ -56,10 +56,10 @@ namespace Arcanoid
             width = 0;
             foreach (enMenuItems item in (enMenuItems[])Enum.GetValues(typeof(enMenuItems)))
             {
-                Vector2 size = Globals.spriteFont.MeasureString(item.ToString());
+                Vector2 size = Globals.spriteFontBig.MeasureString(item.ToString());
                 if (size.X > width)
                     width = size.X;
-                height += Globals.spriteFont.LineSpacing + 5;
+                height += Globals.spriteFontBig.LineSpacing + 5;
             }
             position = new Vector2(
                 (Globals.graphics.PreferredBackBufferWidth - width) / 2,
@@ -150,11 +150,11 @@ namespace Arcanoid
                 else
                     tint = normal;
                 Globals.spriteBatch.DrawString(
-                    Globals.spriteFont,
+                    Globals.spriteFontBig,
                     i.ToString(),
                     location,
                     tint);
-                location.Y += Globals.spriteFont.LineSpacing + 5;
+                location.Y += Globals.spriteFontBig.LineSpacing + 5;
             }
             
             Globals.spriteBatch.End();

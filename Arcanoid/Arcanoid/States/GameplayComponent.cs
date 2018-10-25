@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,11 +12,15 @@ namespace Arcanoid.States
 {
     class GameplayComponent : StateTemplate
     {
+        string[] strs;
+        private int lvlNumber = 1;
+
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
 
         private bool isLoaded = false;
         private bool isStarted = false;
+        private bool isLevelRunning = true;
 
         //PADDLE
         Paddle paddle;
@@ -45,9 +50,9 @@ namespace Arcanoid.States
         public void LoadContent()
         {
             LoadGameSpace();
+            LoadLevel("Content/lvl1.txt");
             LoadDynamics();
             LoadTextures();
-
 
             //flaga do loadContent
             isLoaded = !isLoaded;
@@ -59,9 +64,16 @@ namespace Arcanoid.States
 
             keyboardState = Keyboard.GetState();
 
-            if (CheckKey(Keys.Space)) isStarted = true;
-            if (isStarted && ball.DirectionY == 0) ball.DirectionY = -1;
-            if (!isStarted) ball.PositionX = paddleBounds.Center.X - ball.Size/2;
+            if (CheckKey(Keys.Space) && isLevelRunning == true) isStarted = true; //release ball from paddle
+            if (isStarted && ball.DirectionY == 0) ball.DirectionY = -1; // release part 2
+            if (!isStarted) ball.PositionX = paddleBounds.Center.X - ball.Size / 2; //starting position of ball sticked to paddle
+
+            if (blockList.All(x => x.State == 3)) //if only indestructible blocks are left => finish level
+            {
+                LevelComplete();
+            }
+            if (CheckKey(Keys.Space)) isLevelRunning = true;   //enable drawing to simulate to start next level
+
 
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
             for (int i = 0; i < 2; i++)
@@ -73,21 +85,12 @@ namespace Arcanoid.States
             }
             MovePaddle();
 
-
-            //Aktualizacja pozycji fragmentów paddle
-            paddleSectionLeft.Size = new Point(paddleBounds.Width / 8 * 3, 0);
-            paddleSectionLeft.Location = new Point(paddleBounds.Left, paddleBounds.Top);
-
-            paddleSectionCenter.Size = new Point(paddleBounds.Width / 8 * 2, 0);
-            paddleSectionCenter.Location = new Point(paddleBounds.Left + paddleSectionLeft.Size.X, paddleBounds.Top);
-
-            paddleSectionRight.Size = new Point(paddleBounds.Width / 8 * 3, 0);
-            paddleSectionRight.Location = new Point(paddleSectionCenter.Location.X + paddleSectionCenter.Size.X, paddleBounds.Top);
-
             oldKeyboardState = keyboardState;
 
-            Draw();
-
+            if (isLevelRunning)
+            {
+                Draw();
+            }
         }
 
         public override void Draw()
@@ -99,16 +102,16 @@ namespace Arcanoid.States
             Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, gameSpace.Width + 20, gameSpace.Height), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
 
-            //BLOCK TEST
-            //Globals.spriteBatch.Draw(blockTexture, blockBounds, block.Color);
 
+           
+
+            //BLOCKS
             foreach (Block block in blockList)
             {
                 if (block.State != 0)
                 {
                     Globals.spriteBatch.Draw(blockTexture, block.Bounds, block.Colour[block.State]);
                 }
-
                 //Wizualizacja rysowanych bloków
                 //Globals.spriteBatch.Draw(blockTexture, block.Bottom, Color.Magenta);
                 //Globals.spriteBatch.Draw(blockTexture, block.Left, Color.Magenta);
@@ -119,11 +122,10 @@ namespace Arcanoid.States
             Globals.spriteBatch.Draw(ballTexture, ballBounds, Color.White);
             //PADDLE
             Globals.spriteBatch.Draw(paddleTexture, paddleBounds, Color.White);
-
             //Wizualizacja sekcji paddle
-            Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
-            Globals.spriteBatch.Draw(paddleTexture, paddleSectionCenter, Color.Green);
-            Globals.spriteBatch.Draw(paddleTexture, paddleSectionRight, Color.Magenta);
+            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
+            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionCenter, Color.Green);
+            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionRight, Color.Magenta);
 
             Globals.spriteBatch.End();
         }
@@ -196,50 +198,27 @@ namespace Arcanoid.States
             {
                 if (ballBounds.Intersects(block.Bounds))
                 {
-                    if (ballBounds.Intersects(block.Top))
+                    if (ballBounds.Intersects(block.Top) && ball.DirectionY > 0)
                     {
-                        if (block.State != 0)
-                        {
-                            if (block.State != 3)
-                            {
-                                block.State--;
-                            }
-                            ball.DirectionY *= -1;
-                        }
+                        if (block.State != 3) block.State--;
+                        ball.DirectionY *= -1;
                     }
-                    else if (ballBounds.Intersects(block.Bottom))
+                    else if (ballBounds.Intersects(block.Bottom) && ball.DirectionY < 0)
                     {
-                        if (block.State != 0)
-                        {
-                            if (block.State != 3)
-                            {
-                                block.State--;
-                            }
-                            ball.DirectionY *= -1;
-                        }
+                        if (block.State != 3) block.State--;
+                        ball.DirectionY *= -1;
                     }
-                    else if (ballBounds.Intersects(block.Left))
+                    else if (ballBounds.Intersects(block.Left) && ball.DirectionX > 0)
                     {
-                        if (block.State != 0)
-                        {
-                            if (block.State != 3)
-                            {
-                                block.State--;
-                            }
-                            ball.DirectionX *= -1;
-                        }
+                        if (block.State != 3) block.State--;
+                        ball.DirectionX *= -1;
                     }
-                    else if (ballBounds.Intersects(block.Right))
+                    else if (ballBounds.Intersects(block.Right) && ball.DirectionX < 0)
                     {
-                        if (block.State != 0)
-                        {
-                            if (block.State != 3)
-                            {
-                                block.State--;
-                            }
-                            ball.DirectionX *= -1;
-                        }
+                        if (block.State != 3) block.State--;
+                        ball.DirectionX *= -1;
                     }
+
                     if (block.State == 0) blockList.Remove(block);
                     break;
                 }
@@ -274,6 +253,16 @@ namespace Arcanoid.States
                 }
             }
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
+
+            //Aktualizacja pozycji fragmentów paddle
+            paddleSectionLeft.Size = new Point(paddleBounds.Width / 8 * 3, 0);
+            paddleSectionLeft.Location = new Point(paddleBounds.Left, paddleBounds.Top);
+
+            paddleSectionCenter.Size = new Point(paddleBounds.Width / 8 * 2, 0);
+            paddleSectionCenter.Location = new Point(paddleBounds.Left + paddleSectionLeft.Size.X, paddleBounds.Top);
+
+            paddleSectionRight.Size = new Point(paddleBounds.Width / 8 * 3, 0);
+            paddleSectionRight.Location = new Point(paddleSectionCenter.Location.X + paddleSectionCenter.Size.X, paddleBounds.Top);
         }
 
         public void LoadGameSpace()
@@ -288,29 +277,12 @@ namespace Arcanoid.States
         public void LoadDynamics()
         {
             //paddle
-            paddle = new Paddle(72, 4, (gameSpace.Width / 2));
+            paddle = new Paddle(72, 6, (gameSpace.Width / 2));
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(3, 15, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 15);
+            ball = new Ball(3, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 11);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
-
-            //block test
-            block = new Block(1, 1, 1);
-            for (int i = 0; i < 22; i++)
-            {
-                for (int j = 0; j < 11; j++)
-                {
-                    if (Globals.BlockMesh[i, j] != 0)
-                    {
-                        blockList.Add(new Block(Globals.BlockMesh[i, j], i, j));
-                    }
-                }
-            }
-
-
-            //juz calkiem sensowne stwianie bloku na podstawie obiektu
-            //blockBounds = new Rectangle(block.Column * 30, 60 + block.Row * 15, (int)Globals.blockSize.X, (int)Globals.blockSize.Y);
         }
 
         public void LoadTextures()
@@ -328,6 +300,48 @@ namespace Arcanoid.States
         {
             return keyboardState.IsKeyUp(theKey) &&
                 oldKeyboardState.IsKeyDown(theKey);
+        }
+
+        private void LevelComplete()
+        {
+            ball.DirectionY = 0;
+            ball.PositionY = paddleBounds.Center.Y - 15;
+            isLevelRunning = false;
+            isStarted = false;
+            lvlNumber++;
+            Globals.spriteBatch.Begin();
+            Globals.spriteBatch.DrawString(Globals.spriteFontBig, "You did it!", new Vector2(gameSpace.Center.X - 115, gameSpace.Center.Y - 100), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, "Go to the next LVL", new Vector2(gameSpace.Center.X - 125, gameSpace.Center.Y - 50), Color.White);
+            Globals.spriteBatch.End();
+            LoadLevel("Content/lvl" + lvlNumber.ToString() + ".txt");
+        }
+
+        private void LoadLevel(string fileName)
+        {
+            using (StreamReader reader = new StreamReader(fileName))
+            {
+                int i = 0;
+                do
+                {
+                    strs = reader.ReadLine().Split(',');
+                    for (int j = 0; j < 11; j++)
+                    {
+                        Globals.BlockMesh[i, j] = Convert.ToInt32(strs[j]);
+                    }
+                    if (i++ == 21) break;
+                } while (!reader.EndOfStream);
+            }
+
+            for (int i = 0; i < 22; i++)
+            {
+                for (int j = 0; j < 11; j++)
+                {
+                    if (Globals.BlockMesh[i, j] != 0)
+                    {
+                        blockList.Add(new Block(Globals.BlockMesh[i, j], i, j));
+                    }
+                }
+            }
         }
     }
 }
