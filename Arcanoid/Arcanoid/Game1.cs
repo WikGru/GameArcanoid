@@ -32,15 +32,7 @@ namespace Arcanoid
             Globals.spriteFontBig = Content.Load<SpriteFont>("font");
             Globals.spriteFontSmall = Content.Load<SpriteFont>("Font1");
             Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
-            //for(int i = 0; i < 22; i++)
-            //{
-            //    for(int j = 0; j < 11; j++)
-            //    {
-            //        Globals.BlockMesh[i, j] = (rand.Next() % 4);
-            //    }
-            //}
             manager = new Manager();
-            //spriteFont = Content.Load<SpriteFont>("Font");
         }
 
         protected override void Update(GameTime gameTime)
