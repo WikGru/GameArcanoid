@@ -82,6 +82,7 @@ namespace Arcanoid.States
             Globals.spriteBatch.Begin();
 
             //BACKGROUND
+            Globals.spriteBatch.Draw(blockTexture, new Rectangle(0, 0, Globals.graphics.PreferredBackBufferWidth, Globals.graphics.PreferredBackBufferHeight),Color.Black);
             Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, gameSpace.Width + 20, gameSpace.Height), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
 
