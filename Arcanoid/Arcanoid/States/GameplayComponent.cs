@@ -25,6 +25,11 @@ namespace Arcanoid.States
         Ball ball;
         Rectangle ballBounds;
         Texture2D ballTexture;
+        //BLOCK
+        List<Block> blockList = new List<Block>();
+        Block block;
+        Rectangle blockBounds;
+        Texture2D blockTexture;
         //GAMESPACE
         Texture2D backgroundTexture;
         Texture2D boundsTexture;
@@ -38,7 +43,7 @@ namespace Arcanoid.States
             LoadGameSpace();
             LoadDynamics();
             LoadTextures();
-           
+
             //flaga do loadContent
             isLoaded = !isLoaded;
         }
@@ -79,6 +84,13 @@ namespace Arcanoid.States
             Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, 360, 580), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
 
+            //BLOCK TEST
+            //Globals.spriteBatch.Draw(blockTexture, blockBounds, block.Color);
+
+            foreach(Block block in blockList)
+            {
+                Globals.spriteBatch.Draw(blockTexture, block.Bounds, block.Color);
+            }
             //BALL
             Globals.spriteBatch.Draw(ballTexture, ballBounds, Color.White);
             //PADDLE
@@ -195,6 +207,20 @@ namespace Arcanoid.States
             //ball
             ball = new Ball(5, 15, 0, 1, gameSpace.Center.X - 10, 300);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
+
+            //block test
+            block = new Block(1, 1, 1);
+            for(int i = 0; i < 11; i++)
+            {
+                for(int j = 0; j < 11; j++)
+                {
+                    blockList.Add(new Block(Globals.BlockMesh[i, j], i, j));
+                }
+            }
+
+
+            //juz calkiem sensowne stwianie bloku na podstawie obiektu
+            //blockBounds = new Rectangle(block.Column * 30, 60 + block.Row * 15, (int)Globals.blockSize.X, (int)Globals.blockSize.Y);
         }
 
         public void LoadTextures()
@@ -204,6 +230,10 @@ namespace Arcanoid.States
             boundsTexture = Globals.contentManager.Load<Texture2D>("bounds");
             paddleTexture = Globals.contentManager.Load<Texture2D>("paddle");
             ballTexture = Globals.contentManager.Load<Texture2D>("ball");
+
+            blockTexture = Globals.contentManager.Load<Texture2D>("block");
         }
+
+
     }
 }
