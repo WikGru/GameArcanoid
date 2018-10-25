@@ -67,7 +67,7 @@ namespace Arcanoid.States
             {
                 MoveBall(1);
                 GameSpaceCollision();
-                PaddleCollision();
+                if (ball.DirectionY > 0) PaddleCollision();
             }
             MovePaddle();
 
