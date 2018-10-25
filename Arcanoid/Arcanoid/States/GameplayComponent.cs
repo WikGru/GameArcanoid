@@ -13,20 +13,21 @@ namespace Arcanoid.States
     {
         private bool isLoaded = false;
 
+        //PADDLE
         Paddle paddle;
         Rectangle paddleBounds;
+        Texture2D paddleTexture;
+        //PADDLE SECTIONS
         Rectangle paddleSectionLeft;
         Rectangle paddleSectionCenter;
         Rectangle paddleSectionRight;
-
-
+        //BALL
         Ball ball;
         Rectangle ballBounds;
-
+        Texture2D ballTexture;
+        //GAMESPACE
         Texture2D backgroundTexture;
         Texture2D boundsTexture;
-        Texture2D paddleTexture;
-        Texture2D ballTexture;
         Rectangle gameSpace;
         Rectangle gameSpaceLeft;
         Rectangle gameSpaceTop;
@@ -34,26 +35,10 @@ namespace Arcanoid.States
 
         public void LoadContent()
         {
-            //Pole Gry
-            gameSpace = new Rectangle(30, 40, 340, 580);
-            gameSpaceLeft = new Rectangle(gameSpace.Left, gameSpace.Top, 0, gameSpace.Height);
-            gameSpaceTop = new Rectangle(gameSpace.Left, gameSpace.Top, gameSpace.Width, 0);
-            gameSpaceRight = new Rectangle(gameSpace.Right, gameSpace.Top, 0, gameSpace.Height);
-
-            //paddle
-            paddle = new Paddle(72, 3, (gameSpace.Width / 2));
-            paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
-
-            //ball
-            ball = new Ball(5, 15, 0, 1, gameSpace.Center.X - 10, 300);
-            ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
-
-            //tekstury 
-            backgroundTexture = Globals.contentManager.Load<Texture2D>("background");
-            boundsTexture = Globals.contentManager.Load<Texture2D>("bounds");
-            paddleTexture = Globals.contentManager.Load<Texture2D>("paddle");
-            ballTexture = Globals.contentManager.Load<Texture2D>("ball");
-
+            LoadGameSpace();
+            LoadDynamics();
+            LoadTextures();
+           
             //flaga do loadContent
             isLoaded = !isLoaded;
         }
@@ -190,6 +175,35 @@ namespace Arcanoid.States
                 }
             }
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
+        }
+
+        public void LoadGameSpace()
+        {
+            //Pole Gry
+            gameSpace = new Rectangle(30, 40, 340, 580);
+            gameSpaceLeft = new Rectangle(gameSpace.Left, gameSpace.Top, 0, gameSpace.Height);
+            gameSpaceTop = new Rectangle(gameSpace.Left, gameSpace.Top, gameSpace.Width, 0);
+            gameSpaceRight = new Rectangle(gameSpace.Right, gameSpace.Top, 0, gameSpace.Height);
+        }
+
+        public void LoadDynamics()
+        {
+            //paddle
+            paddle = new Paddle(72, 3, (gameSpace.Width / 2));
+            paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
+
+            //ball
+            ball = new Ball(5, 15, 0, 1, gameSpace.Center.X - 10, 300);
+            ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
+        }
+
+        public void LoadTextures()
+        {
+            //tekstury 
+            backgroundTexture = Globals.contentManager.Load<Texture2D>("background");
+            boundsTexture = Globals.contentManager.Load<Texture2D>("bounds");
+            paddleTexture = Globals.contentManager.Load<Texture2D>("paddle");
+            ballTexture = Globals.contentManager.Load<Texture2D>("ball");
         }
     }
 }
