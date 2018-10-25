@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Arcanoid
 {
@@ -9,7 +10,7 @@ namespace Arcanoid
     public class Game1 : Game
     {
         Manager manager;
-
+        Random rand = new Random();
         public Game1()
         {
             Globals.currentState = Globals.EnStates.SPLASH;
@@ -30,6 +31,13 @@ namespace Arcanoid
         {
             Globals.spriteFont = Content.Load<SpriteFont>("font");
             Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
+            for(int i = 0; i < 11; i++)
+            {
+                for(int j = 0; j < 11; j++)
+                {
+                    Globals.BlockMesh[i, j] = (rand.Next() % 4);
+                }
+            }
             manager = new Manager();
             //spriteFont = Content.Load<SpriteFont>("Font");
         }
