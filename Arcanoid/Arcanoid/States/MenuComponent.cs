@@ -89,7 +89,7 @@ namespace Arcanoid
                 MeasureMenu();
                 play_song_menu();
             }
-            isLoaded = true;
+            isLoaded = true;// deklaracja na true
            
 
             keyboardState = Keyboard.GetState();
