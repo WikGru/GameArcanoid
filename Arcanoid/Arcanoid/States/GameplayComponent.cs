@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace Arcanoid.States
 {
@@ -40,6 +41,7 @@ namespace Arcanoid.States
         Block block;
         Texture2D blockTexture;
         //GAMESPACE
+        Song winnersong;
         Texture2D backgroundTexture;
         Texture2D boundsTexture;
         Rectangle gameSpace;
@@ -281,13 +283,17 @@ namespace Arcanoid.States
 
         public void LoadTextures()
         {
-            //tekstury 
+            //tekstury
+
             backgroundTexture = Globals.contentManager.Load<Texture2D>("background");
             boundsTexture = Globals.contentManager.Load<Texture2D>("bounds");
             paddleTexture = Globals.contentManager.Load<Texture2D>("paddle");
             ballTexture = Globals.contentManager.Load<Texture2D>("ball");
 
             blockTexture = Globals.contentManager.Load<Texture2D>("block");
+
+            // dzwieki
+            winnersong = Globals.contentManager.Load<Song>("applause");
         }
 
         public void StartGame()
@@ -301,9 +307,14 @@ namespace Arcanoid.States
         {
             if (blockList.All(x => x.State == 3)) //if only indestructible blocks are left => finish level
             {
+                
                 LevelComplete();
             }
-            if (CheckKey(Keys.Space)) isLevelRunning = true;   //enable drawing to simulate to start next level
+            if (CheckKey(Keys.Space))
+            {
+                MediaPlayer.Stop();
+                isLevelRunning = true;   //enable drawing to simulate to start next level
+            }
         }
 
         private bool CheckKey(Keys theKey)
@@ -314,6 +325,7 @@ namespace Arcanoid.States
 
         private void LevelComplete()
         {
+            MediaPlayer.Play(winnersong);
             ball.DirectionY = 0;
             ball.PositionY = paddleBounds.Center.Y - 15;
             isLevelRunning = false;
@@ -322,6 +334,7 @@ namespace Arcanoid.States
             Globals.spriteBatch.Begin();
             Globals.spriteBatch.DrawString(Globals.spriteFontBig, "You did it!", new Vector2(gameSpace.Center.X - 115, gameSpace.Center.Y - 100), Color.White);
             Globals.spriteBatch.DrawString(Globals.spriteFontSmall, "Go to the next LVL", new Vector2(gameSpace.Center.X - 125, gameSpace.Center.Y - 50), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, "Press Space", new Vector2(gameSpace.Center.X - 125, gameSpace.Center.Y - 20), Color.White);
             Globals.spriteBatch.End();
             LoadLevel("Content/lvl" + lvlNumber.ToString() + ".txt");
         }

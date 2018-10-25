@@ -13,6 +13,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin applause.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:applause.mp3
+
 #begin back_menu.png
 /importer:TextureImporter
 /processor:TextureProcessor
