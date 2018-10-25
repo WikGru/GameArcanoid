@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace Arcanoid
 {
@@ -20,6 +21,7 @@ namespace Arcanoid
 
         Color normal = Color.White;
         Color highLight = Color.Yellow;
+        Song song; 
 
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
@@ -45,6 +47,8 @@ namespace Arcanoid
 
         private void MeasureMenu()
         {
+           
+
             height = 0;
             width = 0;
             foreach (enMenuItems item in (enMenuItems[])Enum.GetValues(typeof(enMenuItems)))
@@ -57,6 +61,8 @@ namespace Arcanoid
             position = new Vector2(
                 (Globals.graphics.PreferredBackBufferWidth - width) / 2,
                 (Globals.graphics.PreferredBackBufferHeight - height) / 2);
+            
+
         }
 
         private bool CheckKey(Keys theKey)
@@ -67,9 +73,12 @@ namespace Arcanoid
 
         public override void Update(GameTime gameTime)
         {
+           
             if (!isLoaded)
             {
+               
                 MeasureMenu();
+               
             }
 
             keyboardState = Keyboard.GetState();
@@ -92,6 +101,7 @@ namespace Arcanoid
                 {
                     case enMenuItems.Play:
                         Globals.currentState = Globals.EnStates.START;
+                        
                         return;
                     case enMenuItems.Quit:
                         Globals.currentState = Globals.EnStates.EXIT;
@@ -103,12 +113,16 @@ namespace Arcanoid
             Draw();
         }
 
+       
         public override void Draw()
         {
+           
             Vector2 location = position;
             Color tint;
-
+            
             Globals.spriteBatch.Begin();
+            
+
             foreach (enMenuItems i in (enMenuItems[])Enum.GetValues(typeof(enMenuItems)))
             {
 
