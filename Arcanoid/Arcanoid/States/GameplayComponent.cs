@@ -12,7 +12,6 @@ namespace Arcanoid.States
     class GameplayComponent : StateTemplate
     {
         private bool isLoaded = false;
-
         //PADDLE
         Paddle paddle;
         Rectangle paddleBounds;
@@ -44,6 +43,7 @@ namespace Arcanoid.States
             LoadDynamics();
             LoadTextures();
 
+            
             //flaga do loadContent
             isLoaded = !isLoaded;
         }
@@ -55,7 +55,7 @@ namespace Arcanoid.States
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
             for (int i = 0; i < 2; i++)
             {
-                MoveBall(0.5f);
+                MoveBall(1);
                 GameSpaceCollision();
                 BlocksCollision();
                 if (ball.DirectionY > 0) PaddleCollision();
@@ -64,14 +64,14 @@ namespace Arcanoid.States
 
 
             //Aktualizacja pozycji fragmentów paddle
-            paddleSectionLeft.Size = new Point(paddleBounds.Width / 3, 0);
+            paddleSectionLeft.Size = new Point(paddleBounds.Width / 8 * 3, 0);
             paddleSectionLeft.Location = new Point(paddleBounds.Left, paddleBounds.Top);
 
-            paddleSectionCenter.Size = new Point(paddleBounds.Width / 3, 0);
-            paddleSectionCenter.Location = new Point(paddleBounds.Left + paddleBounds.Width / 3, paddleBounds.Top);
+            paddleSectionCenter.Size = new Point(paddleBounds.Width / 8 * 2, 0);
+            paddleSectionCenter.Location = new Point(paddleBounds.Left + paddleSectionLeft.Size.X, paddleBounds.Top);
 
-            paddleSectionRight.Size = new Point(paddleBounds.Width / 3, 0);
-            paddleSectionRight.Location = new Point(paddleBounds.Left + paddleBounds.Width / 3 * 2, paddleBounds.Top);
+            paddleSectionRight.Size = new Point(paddleBounds.Width / 8 * 3, 0);
+            paddleSectionRight.Location = new Point(paddleSectionCenter.Location.X + paddleSectionCenter.Size.X, paddleBounds.Top);
 
             Draw();
 
@@ -82,7 +82,7 @@ namespace Arcanoid.States
             Globals.spriteBatch.Begin();
 
             //BACKGROUND
-            Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, 360, 580), Color.White);
+            Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, gameSpace.Width + 20, gameSpace.Height), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
 
             //BLOCK TEST
@@ -107,9 +107,9 @@ namespace Arcanoid.States
             Globals.spriteBatch.Draw(paddleTexture, paddleBounds, Color.White);
 
             //Wizualizacja sekcji paddle
-            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
-            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionCenter, Color.Green);
-            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionRight, Color.Magenta);
+            Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
+            Globals.spriteBatch.Draw(paddleTexture, paddleSectionCenter, Color.Green);
+            Globals.spriteBatch.Draw(paddleTexture, paddleSectionRight, Color.Magenta);
 
             Globals.spriteBatch.End();
         }
@@ -173,6 +173,7 @@ namespace Arcanoid.States
                 }
                 ball.DirectionY *= -1;
             }
+
         }
 
         public void BlocksCollision()
@@ -253,9 +254,9 @@ namespace Arcanoid.States
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
                 paddle.PositionX += paddle.Velocity;
-                if (paddle.PositionX + paddleBounds.Width / 2 >= gameSpace.Width - 5)
+                if (paddle.PositionX + paddleBounds.Width >= gameSpace.Right - 5)
                 {
-                    paddle.PositionX = gameSpace.Width - paddleBounds.Width / 2 - 5;
+                    paddle.PositionX = gameSpace.Right - 5 - paddleBounds.Width;
                 }
             }
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 10);
@@ -273,11 +274,11 @@ namespace Arcanoid.States
         public void LoadDynamics()
         {
             //paddle
-            paddle = new Paddle(200/*72*/, 4, (gameSpace.Width / 2));
+            paddle = new Paddle(72, 4, (gameSpace.Width / 2));
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(5, 20, 0, 1, gameSpace.Center.X - 10, 300);
+            ball = new Ball(3, 15, 0, 1, gameSpace.Center.X - 10, 300);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
 
             //block test

@@ -4,14 +4,14 @@ namespace Arcanoid
 {
     class Ball
     {
-        private int velocity;
+        private float velocity;
         private int size;
         private float directionX;
         private float directionY;
         private int positionX;
         private int positionY;
 
-        public Ball(int velocity, int size, float directionX, float directionY, int positionX, int positionY)
+        public Ball(float velocity, int size, float directionX, float directionY, int positionX, int positionY)
         {
             this.velocity = velocity;
             this.size = size;
@@ -21,7 +21,7 @@ namespace Arcanoid
             this.positionY = positionY;
         }
 
-        public int Velocity
+        public float Velocity
         {
             get
             {
