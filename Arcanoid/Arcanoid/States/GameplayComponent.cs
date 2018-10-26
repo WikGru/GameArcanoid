@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -17,7 +18,6 @@ namespace Arcanoid.States
 
         private int lvlNumber;
         private int maxLvl;
-        private bool endGame;
         private bool isBallGlued;
 
         private bool isLoaded = false;
@@ -42,15 +42,18 @@ namespace Arcanoid.States
         List<Tile> blockList = new List<Tile>();
         Texture2D tileTexture;
         //GAMESPACE
-        Song levelStart;
         Texture2D backgroundTexture;
         Texture2D boundsTexture;
         Rectangle gameSpace;
         Rectangle gameSpaceLeft;
         Rectangle gameSpaceTop;
         Rectangle gameSpaceRight;
-
-        
+        Rectangle gameSpaceBottom;
+        //SOUNDS
+        Song levelStart;
+        SoundEffect tileDestroyed;
+        SoundEffect objectBounce;
+        SoundEffect lostLife;
 
         private bool CheckKey(Keys theKey)
         {
@@ -65,10 +68,14 @@ namespace Arcanoid.States
 
             if (!isLoaded) LoadContent();                                               // on first encounter load content
             if (CheckKey(Keys.Space)) ReleaseBall();                                     //release ball from paddle
-            if (isBallGlued) ball.PositionX = paddleBounds.Center.X - ball.Size / 2;    //glue ball to paddle
+            if (isBallGlued)
+            {
+                ball.PositionX = paddleBounds.Center.X - ball.Size / 2;    //glue ball to paddle
+                ball.PositionY = paddleBounds.Top - ball.Size + 2;
+            }
 
             //if only indestructible blocks are left => finish level
-            if (blockList.All(x => x.State == 3)) 
+            if (blockList.All(x => x.State == 3))
             {
                 if (lvlNumber == 99)
                 {
@@ -78,7 +85,7 @@ namespace Arcanoid.States
                 }
                 else LoadLevel();
             }
-            
+
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
             for (int i = 0; i < 2; i++)
             {
@@ -109,10 +116,10 @@ namespace Arcanoid.States
                     Globals.spriteBatch.Draw(tileTexture, block.Bounds, block.Colour[block.State]);
                 }
             }
-            
+
             //BALL
             Globals.spriteBatch.Draw(ballTexture, ballBounds, Color.White);
-            
+
             //PADDLE
             Globals.spriteBatch.Draw(paddleTexture, paddleBounds, Color.White);
             //Wizualizacja sekcji paddle
@@ -129,18 +136,11 @@ namespace Arcanoid.States
             ball.DirectionY = -1;
         }
 
-        private void PlayLevelSound()
-        {
-            MediaPlayer.Play(levelStart);
-            MediaPlayer.IsRepeating = false;
-        }
-
         #region ContentLoadMethods
         private void LoadVariables()
         {
             lvlNumber = 1;
             maxLvl = 3;
-            endGame = false;
         }
         public void LoadGameSpace()
         {
@@ -149,6 +149,7 @@ namespace Arcanoid.States
             gameSpaceLeft = new Rectangle(gameSpace.Left, gameSpace.Top, 0, gameSpace.Height);
             gameSpaceTop = new Rectangle(gameSpace.Left, gameSpace.Top, gameSpace.Width, 0);
             gameSpaceRight = new Rectangle(gameSpace.Right, gameSpace.Top, 0, gameSpace.Height);
+            gameSpaceBottom = new Rectangle(gameSpace.Left, gameSpace.Bottom, gameSpace.Width, 0);
         }
         public void LoadDynamics()
         {
@@ -157,21 +158,26 @@ namespace Arcanoid.States
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(3, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 11);
+            ball = new Ball(3, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 12);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
         }
         public void LoadTextures()
         {
             //tekstury
-
             backgroundTexture = Globals.contentManager.Load<Texture2D>("background");
             boundsTexture = Globals.contentManager.Load<Texture2D>("bounds");
             paddleTexture = Globals.contentManager.Load<Texture2D>("paddle");
             ballTexture = Globals.contentManager.Load<Texture2D>("ball");
             tileTexture = Globals.contentManager.Load<Texture2D>("block");
-
+        }
+        private void LoadSounds()
+        {
             // dzwieki
+            MediaPlayer.IsRepeating = false;
             levelStart = Globals.contentManager.Load<Song>("levelStart");
+            tileDestroyed = Globals.contentManager.Load<SoundEffect>("tileDestroyed");
+            objectBounce = Globals.contentManager.Load<SoundEffect>("padBounce");
+            lostLife = Globals.contentManager.Load<SoundEffect>("lostLife");
         }
         private void LoadFromFile(string fileName)
         {
@@ -202,7 +208,7 @@ namespace Arcanoid.States
         }
         private void LoadLevel()
         {
-            PlayLevelSound();
+            MediaPlayer.Play(levelStart);
 
             ball.DirectionY = 0;
             ball.PositionY = paddleBounds.Center.Y - 15;
@@ -218,6 +224,7 @@ namespace Arcanoid.States
             LoadGameSpace();        //gameBounds, background
             LoadDynamics();         //pad, ball
             LoadTextures();         // textures
+            LoadSounds();
             LoadLevel();            //load tiles (level)
 
             isLoaded = !isLoaded;   //flaga do loadContent
@@ -240,52 +247,64 @@ namespace Arcanoid.States
             {
                 ball.DirectionY *= -1;
             }
+            else if (ballBounds.Intersects(gameSpaceBottom))
+            {
+                lostLife.Play(0.5f, 0, 0);
+                isBallGlued = true;
+                //lose life TODO
+            }
         }
         public void PaddleCollision()
         {
-            if (ballBounds.Intersects(paddleSectionLeft) && (ball.DirectionY > 0))
+            if (ball.DirectionY > 0)
             {
-                if (ball.DirectionX == 0)
+                if (ballBounds.Intersects(paddleSectionLeft))
                 {
-                    ball.DirectionX = -0.5f;
+                    objectBounce.Play(0.3f, 0, 0);
+                    if (ball.DirectionX == 0)
+                    {
+                        ball.DirectionX = -0.5f;
+                    }
+                    else if (ball.DirectionX > 0)
+                    {
+                        ball.DirectionX -= 0.25f;
+                    }
+                    else
+                    {
+                        ball.DirectionX = -0.5f;
+                    }
+                    ball.DirectionY *= -1;
                 }
-                else if (ball.DirectionX > 0)
+                else if (ballBounds.Intersects(paddleSectionCenter))
                 {
-                    ball.DirectionX -= 0.25f;
+                    objectBounce.Play(0.3f, 0, 0);
+                    if (ball.DirectionX == 0)
+                    {
+                        ball.DirectionX -= 0.5f;
+                    }
+                    ball.DirectionY *= -1;
                 }
-                else
+                else if (ballBounds.Intersects(paddleSectionRight))
                 {
-                    ball.DirectionX = -0.5f;
+                    objectBounce.Play(0.3f, 0, 0);
+                    if (ball.DirectionX == 0)
+                    {
+                        ball.DirectionX = 0.5f;
+                    }
+                    else if (ball.DirectionX < 0)
+                    {
+                        ball.DirectionX += 0.25f;
+                    }
+                    else
+                    {
+                        ball.DirectionX = 0.5f;
+                    }
+                    ball.DirectionY *= -1;
                 }
-                ball.DirectionY *= -1;
-            }
-            else if (ballBounds.Intersects(paddleSectionCenter))
-            {
-                if (ball.DirectionX == 0)
-                {
-                    ball.DirectionX -= 0.5f;
-                }
-                ball.DirectionY *= -1;
-            }
-            else if (ballBounds.Intersects(paddleSectionRight))
-            {
-                if (ball.DirectionX == 0)
-                {
-                    ball.DirectionX = 0.5f;
-                }
-                else if (ball.DirectionX < 0)
-                {
-                    ball.DirectionX += 0.25f;
-                }
-                else
-                {
-                    ball.DirectionX = 0.5f;
-                }
-                ball.DirectionY *= -1;
             }
 
         }
-        public void BlocksCollision()
+        public void TileCollision()
         {
             foreach (Tile block in blockList)
             {
@@ -312,7 +331,15 @@ namespace Arcanoid.States
                         ball.DirectionX *= -1;
                     }
 
-                    if (block.State == 0) blockList.Remove(block);
+                    if (block.State == 0)
+                    {
+                        tileDestroyed.Play(0.3f, 0, 0);
+                        blockList.Remove(block);
+                    }
+                    else
+                    {
+                        objectBounce.Play(0.3f, 0, 0);
+                    }
                     break;
                 }
             }
@@ -320,7 +347,7 @@ namespace Arcanoid.States
         public void DetectCollision()
         {
             GameSpaceCollision();
-            BlocksCollision();
+            TileCollision();
             PaddleCollision();
         }
         #endregion

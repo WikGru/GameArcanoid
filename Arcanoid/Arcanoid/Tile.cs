@@ -30,7 +30,7 @@ namespace Arcanoid
             this.row = row + 1;
             this.column = column + 1;
             bounds = new Rectangle(column * 30 + 35, 60 + row * 15, (int)Globals.blockSize.X, (int)Globals.blockSize.Y);
-            color = new Color[4] { new Color(0,0,0,0), Color.Orange, Color.Red, Color.Gray };
+            color = new Color[4] { Color.Black, Color.Orange, Color.Red, Color.LightGray };
 
             top = new Rectangle(bounds.Left, bounds.Top, bounds.Width, 3);
             bottom = new Rectangle(bounds.Left, bounds.Bottom, bounds.Width, 3);

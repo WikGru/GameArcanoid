@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Arcanoid
 {
@@ -22,6 +23,7 @@ namespace Arcanoid
 
         Color normal = Color.White;
         Color highLight = new Color(255, 211, 5);
+        SoundEffect selectionChange;
         Song menuSound;
         Texture2D backgroundtexture;
 
@@ -42,6 +44,7 @@ namespace Arcanoid
 
         private void PlaySong()
         {
+            MediaPlayer.Volume = 0.5f;
             MediaPlayer.Play(menuSound);
             MediaPlayer.IsRepeating = true;
         }
@@ -59,13 +62,14 @@ namespace Arcanoid
 
             if (CheckKey(Keys.Down))
             {
+                selectionChange.Play(0.5f,0,0);
                 selectedIndex++;
                 if (selectedIndex == Enum.GetNames(typeof(enMenuItems)).Length)
-
                     selectedIndex = 0;
             }
             if (CheckKey(Keys.Up))
             {
+                selectionChange.Play(0.5f,0,0);
                 selectedIndex--;
                 if (selectedIndex < 0)
                     selectedIndex = Enum.GetNames(typeof(enMenuItems)).Length - 1;
@@ -135,8 +139,9 @@ namespace Arcanoid
 
         private void LoadMenu()
         {
+            selectionChange = Globals.contentManager.Load<SoundEffect>("padBounce");
             menuSound = Globals.contentManager.Load<Song>("menu");
-            backgroundtexture = Globals.contentManager.Load<Texture2D>("back_menu");
+            backgroundtexture = Globals.contentManager.Load<Texture2D>("menuBackground");
             height = 0;
             width = 0;
             foreach (enMenuItems item in (enMenuItems[])Enum.GetValues(typeof(enMenuItems)))
