@@ -42,7 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Ball.cs" />
-    <Compile Include="Block.cs" />
+    <Compile Include="Tile.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Manager.cs" />

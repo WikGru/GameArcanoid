@@ -10,7 +10,7 @@ namespace Arcanoid
     public class Game1 : Game
     {
         Manager manager;
-        Random rand = new Random();
+
         public Game1()
         {
             Globals.currentState = Globals.EnStates.SPLASH;

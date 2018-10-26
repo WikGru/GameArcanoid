@@ -93,6 +93,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Font1.spritefont
 
+#begin levelStart.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:levelStart.mp3
+
 #begin lvl1.txt
 /copy:lvl1.txt
 
@@ -102,11 +108,14 @@
 #begin lvl3.txt
 /copy:lvl3.txt
 
-#begin menu_dzwiek.mp3
+#begin lvl99.txt
+/copy:lvl99.txt
+
+#begin menu.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:menu_dzwiek.mp3
+/build:menu.mp3
 
 #begin paddle.PNG
 /importer:TextureImporter

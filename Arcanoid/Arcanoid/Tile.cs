@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Arcanoid
 {
-    class Block
+    class Tile
     {
         //0 - non existant
         //1 - orange - one hit to destroy
@@ -24,7 +24,7 @@ namespace Arcanoid
         private Rectangle right;
 
 
-        public Block(int state, int row, int column)
+        public Tile(int state, int row, int column)
         {
             this.state = state;
             this.row = row + 1;
