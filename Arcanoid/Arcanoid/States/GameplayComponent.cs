@@ -20,6 +20,7 @@ namespace Arcanoid.States
         private int maxLvl;
         private bool isBallGlued;
 
+
         private bool isLoaded = false;
 
         KeyboardState keyboardState;
@@ -139,7 +140,7 @@ namespace Arcanoid.States
         #region ContentLoadMethods
         private void LoadVariables()
         {
-            lvlNumber = 1;
+            lvlNumber = 0;
             maxLvl = 3;
         }
         public void LoadGameSpace()
@@ -212,11 +213,11 @@ namespace Arcanoid.States
 
             ball.DirectionY = 0;
             ball.PositionY = paddleBounds.Center.Y - 15;
-
+            lvlNumber++;
             isBallGlued = true;
+            if (lvlNumber > maxLvl) lvlNumber = 99;
             LoadFromFile("Content/lvl" + lvlNumber.ToString() + ".txt");
 
-            if (++lvlNumber > maxLvl) lvlNumber = 99;
         }
         public void LoadContent()
         {
