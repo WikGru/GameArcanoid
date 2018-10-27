@@ -16,13 +16,13 @@ namespace Arcanoid.States
     {
         string[] strs;
 
+        //VARIABLES TO SET ON EACH GAME
         private int lvlNumber;
         private int maxLvl;
         private bool isBallGlued;
-
-
         private bool isLoaded = false;
-        private bool isGameOver = false;
+        private bool isGameOver;
+
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
 
@@ -75,8 +75,9 @@ namespace Arcanoid.States
             if (CheckKey(Keys.Space)) ReleaseBall();                                     //release ball from paddle
             if (isBallGlued)
             {
+                ball.DirectionY = 0;
                 ball.PositionX = paddleBounds.Center.X - ball.Size / 2;    //glue ball to paddle
-                ball.PositionY = paddleBounds.Top - ball.Size + 2;
+                ball.PositionY = Globals.graphics.PreferredBackBufferHeight - 40 - ball.Size;
             }
 
             if (lifes < 0) GameOver(); //if lost all lives set gameover
@@ -94,9 +95,9 @@ namespace Arcanoid.States
             }
 
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 1; i++)
             {
-                MoveBall(1);
+                MoveBall(2);
                 DetectCollision();
             }
             MovePaddle();
@@ -105,8 +106,12 @@ namespace Arcanoid.States
             if (!isGameOver) Draw();
             else
             {
-                if (CheckKey(Keys.Space)) Globals.currentState = Globals.EnStates.MENU;
-                isLoaded = false;
+                if (CheckKey(Keys.Space))
+                {
+                    Globals.currentState = Globals.EnStates.MENU;
+                    isLoaded = false;
+                    isGameOver = false;
+                }
             }
             oldKeyboardState = keyboardState;
         }
@@ -229,7 +234,7 @@ namespace Arcanoid.States
             MediaPlayer.Play(levelStart);
 
             ball.DirectionY = 0;
-            ball.PositionY = paddleBounds.Center.Y - 15;
+            ball.PositionY = paddleBounds.Top - ball.Size;
             lvlNumber++;
             isBallGlued = true;
             if (lvlNumber > maxLvl) lvlNumber = 99;
