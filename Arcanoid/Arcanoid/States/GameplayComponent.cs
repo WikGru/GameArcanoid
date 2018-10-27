@@ -22,10 +22,14 @@ namespace Arcanoid.States
 
 
         private bool isLoaded = false;
-
+        private bool isGameOver = false;
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
 
+        //LIFES
+        private int lifes;
+        //SCORE
+        private int score;
         //PADDLE
         Paddle paddle;
         Rectangle paddleBounds;
@@ -75,6 +79,8 @@ namespace Arcanoid.States
                 ball.PositionY = paddleBounds.Top - ball.Size + 2;
             }
 
+            if (lifes < 0) GameOver(); //if lost all lives set gameover
+
             //if only indestructible blocks are left => finish level
             if (blockList.All(x => x.State == 3))
             {
@@ -95,21 +101,24 @@ namespace Arcanoid.States
             }
             MovePaddle();
 
-            oldKeyboardState = keyboardState;
 
-            Draw();
+            if (!isGameOver) Draw();
+            else
+            {
+                if (CheckKey(Keys.Space)) Globals.currentState = Globals.EnStates.MENU;
+                isLoaded = false;
+            }
+            oldKeyboardState = keyboardState;
         }
 
         public override void Draw()
         {
             Globals.spriteBatch.Begin();
-
             //BACKGROUND
             Globals.spriteBatch.Draw(tileTexture, new Rectangle(0, 0, Globals.graphics.PreferredBackBufferWidth, Globals.graphics.PreferredBackBufferHeight), Color.Black);
             Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, gameSpace.Width + 20, gameSpace.Height), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
-
-            //TILES (level)
+            //TILES
             foreach (Tile block in blockList)
             {
                 if (block.State != 0)
@@ -117,17 +126,23 @@ namespace Arcanoid.States
                     Globals.spriteBatch.Draw(tileTexture, block.Bounds, block.Colour[block.State]);
                 }
             }
-
             //BALL
             Globals.spriteBatch.Draw(ballTexture, ballBounds, Color.White);
-
             //PADDLE
             Globals.spriteBatch.Draw(paddleTexture, paddleBounds, Color.White);
+            //LIFES
+            for (int life = 1; life <= lifes; life++)
+            {
+                Globals.spriteBatch.Draw(paddleTexture, new Rectangle(life * 35, Globals.graphics.PreferredBackBufferHeight - 15, 24, 5), Color.White);
+            }
+            //SCORE
+            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, "SCORE", new Vector2(gameSpace.Right + 55, 120), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, score.ToString(), new Vector2(gameSpace.Right + 60, 150), Color.White);
+
             //Wizualizacja sekcji paddle
             //Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
             //Globals.spriteBatch.Draw(paddleTexture, paddleSectionCenter, Color.Green);
             //Globals.spriteBatch.Draw(paddleTexture, paddleSectionRight, Color.Magenta);
-
             Globals.spriteBatch.End();
         }
 
@@ -140,6 +155,8 @@ namespace Arcanoid.States
         #region ContentLoadMethods
         private void LoadVariables()
         {
+            score = 0;
+            lifes = 3;
             lvlNumber = 0;
             maxLvl = 3;
         }
@@ -217,7 +234,6 @@ namespace Arcanoid.States
             isBallGlued = true;
             if (lvlNumber > maxLvl) lvlNumber = 99;
             LoadFromFile("Content/lvl" + lvlNumber.ToString() + ".txt");
-
         }
         public void LoadContent()
         {
@@ -252,7 +268,7 @@ namespace Arcanoid.States
             {
                 lostLife.Play(0.5f, 0, 0);
                 isBallGlued = true;
-                //lose life TODO
+                LoseLife();
             }
         }
         public void PaddleCollision()
@@ -335,7 +351,13 @@ namespace Arcanoid.States
                     if (block.State == 0)
                     {
                         tileDestroyed.Play(0.3f, 0, 0);
+                        AddPoints(10);
                         blockList.Remove(block);
+                    }
+                    else if (block.State < 3)
+                    {
+                        objectBounce.Play(0.3f, 0, 0);
+                        AddPoints(2);
                     }
                     else
                     {
@@ -391,6 +413,37 @@ namespace Arcanoid.States
 
             paddleSectionRight.Size = new Point(paddleBounds.Width / 8 * 3, 0);
             paddleSectionRight.Location = new Point(paddleSectionCenter.Location.X + paddleSectionCenter.Size.X, paddleBounds.Top);
+        }
+        #endregion
+
+        #region LifesMethods
+        public void LoseLife()
+        {
+            lifes--;
+        }
+        public void AddLife()
+        {
+            if (++lifes > 9)
+            {
+                lifes = 9;
+                score += 100;
+            }
+        }
+        public void GameOver()
+        {
+            Vector2 size = Globals.spriteFontSmall.MeasureString("Game Over");
+            Globals.spriteBatch.Begin();
+            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, "Game Over", new Vector2(gameSpace.Center.X - (size.X / 2), 400), Color.White);
+            Globals.spriteBatch.End();
+            isGameOver = true;
+
+        }
+        #endregion
+
+        #region ScoreMethods
+        public void AddPoints(int points)
+        {
+            score += points;
         }
         #endregion
     }
