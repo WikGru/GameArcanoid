@@ -141,8 +141,8 @@ namespace Arcanoid.States
                 Globals.spriteBatch.Draw(paddleTexture, new Rectangle(life * 35, Globals.graphics.PreferredBackBufferHeight - 15, 24, 5), Color.White);
             }
             //SCORE
-            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, "SCORE", new Vector2(gameSpace.Right + 55, 120), Color.White);
-            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, score.ToString(), new Vector2(gameSpace.Right + 60, 150), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, "SCORE", new Vector2(gameSpace.Right + 55, 90), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, score.ToString(), new Vector2(gameSpace.Right + 60, 120), Color.White);
 
             //Wizualizacja sekcji paddle
             //Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
@@ -436,9 +436,9 @@ namespace Arcanoid.States
         }
         public void GameOver()
         {
-            Vector2 size = Globals.spriteFontSmall.MeasureString("Game Over");
+            Vector2 size = Globals.spriteFontScore.MeasureString("Game Over");
             Globals.spriteBatch.Begin();
-            Globals.spriteBatch.DrawString(Globals.spriteFontSmall, "Game Over", new Vector2(gameSpace.Center.X - (size.X / 2), 400), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, "Game Over", new Vector2(gameSpace.Center.X - (size.X / 2), 400), Color.White);
             Globals.spriteBatch.End();
             isGameOver = true;
 

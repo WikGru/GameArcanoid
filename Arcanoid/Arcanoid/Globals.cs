@@ -9,7 +9,7 @@ namespace Arcanoid
         public static bool exit = false;
 
         public static SpriteFont spriteFontBig = null;
-        public static SpriteFont spriteFontSmall = null;
+        public static SpriteFont spriteFontScore = null;
         public static SpriteBatch spriteBatch = null;
         public static ContentManager contentManager = null;
         public static GraphicsDeviceManager graphics = null;

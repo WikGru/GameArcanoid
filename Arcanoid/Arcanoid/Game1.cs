@@ -30,7 +30,7 @@ namespace Arcanoid
         protected override void LoadContent()
         {
             Globals.spriteFontBig = Content.Load<SpriteFont>("font");
-            Globals.spriteFontSmall = Content.Load<SpriteFont>("Font1");
+            Globals.spriteFontScore = Content.Load<SpriteFont>("Font1");
             Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
             manager = new Manager();
         }
