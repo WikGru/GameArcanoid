@@ -29,8 +29,8 @@ namespace Arcanoid
             PADDLE_PLUS,
             PADDLE_MINUS,
             LIFE,
-            DESTROY_EVERY_TILE_ONHIT,
-            GO_TO_NEXT_LVL
+            INVERT_CONTROLS,
+            BONUS_POINTS_BIG
         }
 
 

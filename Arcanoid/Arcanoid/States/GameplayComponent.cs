@@ -25,6 +25,10 @@ namespace Arcanoid.States
         private bool isLoaded = false;
         private bool isGameOver;
 
+
+        Keys keyRight = Keys.Right;
+        Keys keyLeft = Keys.Left;
+
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
 
@@ -76,10 +80,10 @@ namespace Arcanoid.States
         public override void Update(GameTime gameTime)
         {
             keyboardState = Keyboard.GetState();
-            if (CheckKey(Keys.Tab)) blockList.Clear(); //TESTING ONLY finish level on TAB
+            if (CheckKey(Keys.Escape)) Globals.currentState = Globals.EnStates.MENU; //TESTING ONLY finish level on TAB
 
             if (!isLoaded) LoadContent();                                               // on first encounter load content
-            if (CheckKey(Keys.Space)) ReleaseBall();                                     //release ball from paddle
+            if (CheckKey(Keys.Space) && ball.DirectionY == 0) ReleaseBall();                                     //release ball from paddle
             if (isBallGlued)
             {
                 ball.DirectionY = 0;
@@ -156,7 +160,7 @@ namespace Arcanoid.States
             //SCORE
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, "SCORE", new Vector2(gameSpace.Right + 55, 90), Color.White);
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, score.ToString(), new Vector2(gameSpace.Right + 60, 120), Color.White);
-           
+
 
             //TEST POWERUPS
             //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 200, 300), new Point(24, 12)), Color.Lime);// paddle plus
@@ -181,6 +185,9 @@ namespace Arcanoid.States
         #region ContentLoadMethods
         private void LoadVariables()
         {
+            keyRight = Keys.Right;
+            keyLeft = Keys.Left;
+            powerUpList.Clear();
             score = 0;
             lifes = 3;
             lvlNumber = 0;
@@ -256,6 +263,10 @@ namespace Arcanoid.States
         {
             MediaPlayer.Play(levelStart);
 
+            keyRight = Keys.Right;
+            keyLeft = Keys.Left;
+            paddle.SizeX = 72;
+            powerUpList.Clear();
             ball.DirectionY = 0;
             ball.PositionY = paddleBounds.Top - ball.Size;
             lvlNumber++;
@@ -296,6 +307,10 @@ namespace Arcanoid.States
             {
                 lostLife.Play(0.5f, 0, 0);
                 isBallGlued = true;
+                keyRight = Keys.Right;
+                keyLeft = Keys.Left;
+                powerUpList.Clear();
+                paddle.SizeX = 72;
                 LoseLife();
             }
         }
@@ -303,7 +318,7 @@ namespace Arcanoid.States
         {
             foreach (PowerUp power in powerUpList)
             {
-                if (paddleBounds.Intersects(new Rectangle(power.Bounds.X, power.PositionY,24,12)))
+                if (paddleBounds.Intersects(new Rectangle(power.Bounds.X, power.PositionY, 24, 12)))
                 {
                     GivePowerUp(power);
                     powerUpList.Remove(power);
@@ -388,7 +403,7 @@ namespace Arcanoid.States
 
                     if (block.State == 0)
                     {
-                        if (rand.Next(1, 1) == 1)
+                        if (rand.Next(1, 4) == 1)
                         {
                             powerUpList.Add(new PowerUp(block.Bounds));
                         }
@@ -428,7 +443,7 @@ namespace Arcanoid.States
         }
         public void MovePaddle()
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            if (Keyboard.GetState().IsKeyDown(keyLeft))
             {
                 paddle.PositionX -= paddle.Velocity;
                 if (paddle.PositionX <= gameSpace.Location.X + 5)
@@ -436,7 +451,7 @@ namespace Arcanoid.States
                     paddle.PositionX = 5 + gameSpace.Location.X;
                 }
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            if (Keyboard.GetState().IsKeyDown(keyRight))
             {
                 paddle.PositionX += paddle.Velocity;
                 if (paddle.PositionX + paddleBounds.Width >= gameSpace.Right - 5)
@@ -495,27 +510,36 @@ namespace Arcanoid.States
             switch (power.Powerup)
             {
                 case Globals.enPowerUpType.PADDLE_PLUS:
+                    AddPoints(50);
                     powerUp.Play(0.5f, 0, 0);
-                    paddle.SizeX += 20;
+                    paddle.SizeX += 25;
                     break;
                 case Globals.enPowerUpType.PADDLE_MINUS:
+                    AddPoints(100);
                     powerDown.Play(0.5f, 0, 0);
-                    paddle.SizeX -= 40;
+                    paddle.SizeX -= 35;
                     if (paddle.SizeX <= 20) paddle.SizeX = 25;
                     break;
                 case Globals.enPowerUpType.LIFE:
+                    AddPoints(50);
                     powerUp.Play(0.5f, 0, 0);
                     AddLife();
                     break;
-                case Globals.enPowerUpType.GO_TO_NEXT_LVL:
-                    score += 10000;
-                    blockList.Clear();
+                case Globals.enPowerUpType.BONUS_POINTS_BIG:
+                    AddPoints(800);
                     break;
-                case Globals.enPowerUpType.DESTROY_EVERY_TILE_ONHIT:
-                    powerUp.Play(0.5f, 0, 0);
-                    //TODO: co tu zrobic?
+                case Globals.enPowerUpType.INVERT_CONTROLS:
+                    AddPoints(100);
+                    InverControls();
+                    powerDown.Play(0.5f, 0, 0);
                     break;
             }
+        }
+
+        public void InverControls()
+        {
+            keyRight = Keys.Left;
+            keyLeft = Keys.Right;
         }
         #endregion
     }
