@@ -16,6 +16,8 @@ namespace Arcanoid.States
     {
         string[] strs;
 
+        Random rand = new Random();
+
         //VARIABLES TO SET ON EACH GAME
         private int lvlNumber;
         private int maxLvl;
@@ -59,6 +61,11 @@ namespace Arcanoid.States
         SoundEffect tileDestroyed;
         SoundEffect objectBounce;
         SoundEffect lostLife;
+        SoundEffect powerUp;
+        SoundEffect powerDown;
+        //POWER UPS
+        Texture2D powerUpTexture;
+        List<PowerUp> powerUpList = new List<PowerUp>();
 
         private bool CheckKey(Keys theKey)
         {
@@ -135,6 +142,12 @@ namespace Arcanoid.States
             Globals.spriteBatch.Draw(ballTexture, ballBounds, Color.White);
             //PADDLE
             Globals.spriteBatch.Draw(paddleTexture, paddleBounds, Color.White);
+            //POWERUPS
+            foreach (PowerUp power in powerUpList)
+            {
+                Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(power.Bounds.X, power.PositionY, 24, 12), power.Colour[(int)power.Powerup]);
+                power.PositionY += 3;
+            }
             //LIFES
             for (int life = 1; life <= lifes; life++)
             {
@@ -143,6 +156,14 @@ namespace Arcanoid.States
             //SCORE
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, "SCORE", new Vector2(gameSpace.Right + 55, 90), Color.White);
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, score.ToString(), new Vector2(gameSpace.Right + 60, 120), Color.White);
+           
+
+            //TEST POWERUPS
+            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 200, 300), new Point(24, 12)), Color.Lime);// paddle plus
+            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 170, 300), new Point(24, 12)), Color.Red);   //paddle minus
+            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 140, 300), new Point(24, 12)), Color.Cyan); //kazdy blok na hita
+            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 110, 300), new Point(24, 12)), Color.Magenta); //life up
+            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 80, 300), new Point(24, 12)), Color.Gold); //go to next lvl
 
             //Wizualizacja sekcji paddle
             //Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
@@ -186,12 +207,12 @@ namespace Arcanoid.States
         }
         public void LoadTextures()
         {
-            //tekstury
             backgroundTexture = Globals.contentManager.Load<Texture2D>("background");
             boundsTexture = Globals.contentManager.Load<Texture2D>("bounds");
             paddleTexture = Globals.contentManager.Load<Texture2D>("paddle");
             ballTexture = Globals.contentManager.Load<Texture2D>("ball");
             tileTexture = Globals.contentManager.Load<Texture2D>("block");
+            powerUpTexture = Globals.contentManager.Load<Texture2D>("powerUp");
         }
         private void LoadSounds()
         {
@@ -201,6 +222,8 @@ namespace Arcanoid.States
             tileDestroyed = Globals.contentManager.Load<SoundEffect>("tileDestroyed");
             objectBounce = Globals.contentManager.Load<SoundEffect>("padBounce");
             lostLife = Globals.contentManager.Load<SoundEffect>("lostLife");
+            powerUp = Globals.contentManager.Load<SoundEffect>("powerUpSound");
+            powerDown = Globals.contentManager.Load<SoundEffect>("powerDownSound");
         }
         private void LoadFromFile(string fileName)
         {
@@ -278,6 +301,16 @@ namespace Arcanoid.States
         }
         public void PaddleCollision()
         {
+            foreach (PowerUp power in powerUpList)
+            {
+                if (paddleBounds.Intersects(new Rectangle(power.Bounds.X, power.PositionY,24,12)))
+                {
+                    GivePowerUp(power);
+                    powerUpList.Remove(power);
+                    break;
+                }
+            }
+
             if (ball.DirectionY > 0)
             {
                 if (ballBounds.Intersects(paddleSectionLeft))
@@ -355,6 +388,10 @@ namespace Arcanoid.States
 
                     if (block.State == 0)
                     {
+                        if (rand.Next(1, 1) == 1)
+                        {
+                            powerUpList.Add(new PowerUp(block.Bounds));
+                        }
                         tileDestroyed.Play(0.3f, 0, 0);
                         AddPoints(10);
                         blockList.Remove(block);
@@ -449,6 +486,36 @@ namespace Arcanoid.States
         public void AddPoints(int points)
         {
             score += points;
+        }
+        #endregion
+
+        #region PowerUpMethods
+        public void GivePowerUp(PowerUp power)
+        {
+            switch (power.Powerup)
+            {
+                case Globals.enPowerUpType.PADDLE_PLUS:
+                    powerUp.Play(0.5f, 0, 0);
+                    paddle.SizeX += 20;
+                    break;
+                case Globals.enPowerUpType.PADDLE_MINUS:
+                    powerDown.Play(0.5f, 0, 0);
+                    paddle.SizeX -= 40;
+                    if (paddle.SizeX <= 20) paddle.SizeX = 25;
+                    break;
+                case Globals.enPowerUpType.LIFE:
+                    powerUp.Play(0.5f, 0, 0);
+                    AddLife();
+                    break;
+                case Globals.enPowerUpType.GO_TO_NEXT_LVL:
+                    score += 10000;
+                    blockList.Clear();
+                    break;
+                case Globals.enPowerUpType.DESTROY_EVERY_TILE_ONHIT:
+                    powerUp.Play(0.5f, 0, 0);
+                    //TODO: co tu zrobic?
+                    break;
+            }
         }
         #endregion
     }

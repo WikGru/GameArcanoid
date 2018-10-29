@@ -23,6 +23,16 @@ namespace Arcanoid
             EXIT
         }
 
+        
+        public enum enPowerUpType
+        {
+            PADDLE_PLUS,
+            PADDLE_MINUS,
+            LIFE,
+            DESTROY_EVERY_TILE_ONHIT,
+            GO_TO_NEXT_LVL
+        }
+
 
         public static int[,] BlockMesh = new int[22, 11]; //[row,column]
         public static Vector2 firstBlock = new Vector2(30, 60);

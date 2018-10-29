@@ -75,11 +75,17 @@
 /processorParam:Quality=Best
 /build:Sounds/padBounce.wav;padBounce.wav
 
-#begin Sounds/powerUp.wav
+#begin Sounds/powerDownSound.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:Sounds/powerUp.wav;powerUp.wav
+/build:Sounds/powerDownSound.wav;powerDownSound.wav
+
+#begin Sounds/powerUpSound.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/powerUpSound.wav;powerUpSound.wav
 
 #begin Sounds/tileDestroyed.wav
 /importer:WavImporter
@@ -158,6 +164,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/paddle.PNG;paddle.PNG
+
+#begin Sprites/powerUp.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/powerUp.png;powerUp.png
 
 #begin Sprites/splash.png
 /importer:TextureImporter
