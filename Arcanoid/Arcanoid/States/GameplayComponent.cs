@@ -267,7 +267,7 @@ namespace Arcanoid.States
             }
             else if (ballBounds.Intersects(gameSpaceTop))
             {
-                ball.DirectionY *= -1;
+                if (ball.DirectionY < 0) ball.DirectionY *= -1;
             }
             else if (ballBounds.Intersects(gameSpaceBottom))
             {
