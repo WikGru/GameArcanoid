@@ -29,7 +29,7 @@ namespace Arcanoid
             this.state = state;
             this.row = row + 1;
             this.column = column + 1;
-            bounds = new Rectangle(column * 30 + 35, 60 + row * 15, (int)Globals.blockSize.X, (int)Globals.blockSize.Y);
+            bounds = new Rectangle(column * 30 + 35, 60 + row * 15, (int)Globals.tileSize.X, (int)Globals.tileSize.Y);
             color = new Color[4] { Color.Black, Color.Orange, Color.Red, Color.LightGray };
 
             top = new Rectangle(bounds.Left, bounds.Top, bounds.Width, 3);

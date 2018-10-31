@@ -243,7 +243,7 @@ namespace Arcanoid.States
                     strs = reader.ReadLine().Split(',');
                     for (int j = 0; j < 11; j++)
                     {
-                        Globals.BlockMesh[i, j] = Convert.ToInt32(strs[j]);
+                        Globals.tileMesh[i, j] = Convert.ToInt32(strs[j]);
                     }
                     if (i++ == 21) break;
                 } while (!reader.EndOfStream);
@@ -253,9 +253,9 @@ namespace Arcanoid.States
             {
                 for (int j = 0; j < 11; j++)
                 {
-                    if (Globals.BlockMesh[i, j] != 0)
+                    if (Globals.tileMesh[i, j] != 0)
                     {
-                        tileList.Add(new Tile(Globals.BlockMesh[i, j], i, j));
+                        tileList.Add(new Tile(Globals.tileMesh[i, j], i, j));
                     }
                 }
             }
