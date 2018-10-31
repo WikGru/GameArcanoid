@@ -83,7 +83,11 @@ namespace Arcanoid.States
         public override void Update(GameTime gameTime)
         {
             keyboardState = Keyboard.GetState();
-            if (CheckKey(Keys.Escape)) Globals.currentState = Globals.EnStates.MENU; //TESTING ONLY finish level on TAB
+            if (CheckKey(Keys.Escape))
+            {
+                Globals.currentState = Globals.EnStates.MENU; //TESTING ONLY finish level on TAB
+                isLoaded = false;
+            }
             if (CheckKey(Keys.Tab)) tileList.Clear(); ; //TESTING ONLY finish level on TAB
 
             if (!isLoaded) LoadContent();                                               // on first encounter load content
@@ -260,6 +264,7 @@ namespace Arcanoid.States
         }
         private void LoadLevel()
         {
+            tileList.Clear();
             MediaPlayer.Play(levelStart);
             ball.Velocity = Globals.physicsIterations;
             keyRight = Keys.Right;
@@ -304,6 +309,7 @@ namespace Arcanoid.States
             }
             else if (ball.PositionY + ball.Size >= gameSpace.Bottom)
             {
+                ball.DirectionY *= -1;
                 lostLife.Play(0.5f, 0, 0);
                 isBallGlued = true;
                 keyRight = Keys.Right;
