@@ -6,6 +6,9 @@ namespace Arcanoid
 {
     static public class Globals
     {
+        public static int maxLvl = 10;
+
+
         public static bool exit = false;
 
         public static SpriteFont spriteFontBig = null;

@@ -20,7 +20,6 @@ namespace Arcanoid.States
 
         //VARIABLES TO SET ON EACH GAME
         private int lvlNumber;
-        private int maxLvl;
         private bool isBallGlued;
         private bool isLoaded = false;
         private bool isGameOver;
@@ -192,7 +191,6 @@ namespace Arcanoid.States
             score = 0;
             lifes = 3;
             lvlNumber = 0;
-            maxLvl = 3;
         }
         public void LoadGameSpace()
         {
@@ -272,7 +270,7 @@ namespace Arcanoid.States
             ball.PositionY = paddleBounds.Top - ball.Size;
             lvlNumber++;
             isBallGlued = true;
-            if (lvlNumber > maxLvl) lvlNumber = 99;
+            if (lvlNumber > Globals.maxLvl) lvlNumber = 99;
             LoadFromFile("Content/lvl" + lvlNumber.ToString() + ".txt");
         }
         public void LoadContent()
