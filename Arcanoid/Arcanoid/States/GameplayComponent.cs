@@ -23,6 +23,7 @@ namespace Arcanoid.States
         private bool isBallGlued;
         private bool isLoaded = false;
         private bool isGameOver;
+        private bool isGameWin;
 
 
         Keys keyRight = Keys.Right;
@@ -46,8 +47,8 @@ namespace Arcanoid.States
         //BALL
         Ball ball;
         Rectangle ballBounds;
-        Vector2 ballBoundsPrecise;
         Texture2D ballTexture;
+        Vector2 ballPrecisePosition;
         //BLOCK
         List<Tile> tileList = new List<Tile>();
         Texture2D tileTexture;
@@ -69,6 +70,9 @@ namespace Arcanoid.States
         //POWER UPS
         Texture2D powerUpTexture;
         List<PowerUp> powerUpList = new List<PowerUp>();
+
+
+        float paddleHit = 0;
 
         private bool CheckKey(Keys theKey)
         {
@@ -92,30 +96,20 @@ namespace Arcanoid.States
             }
 
             if (lifes < 0) GameOver(); //if lost all lives set gameover
-
+            if (lvlNumber == 99) GameWin();
             //if only indestructible blocks are left => finish level
-            if (tileList.All(x => x.State == 3))
-            {
-                if (lvlNumber == 99)
-                {
-                    //finish game => return to menu
-                    Globals.currentState = Globals.EnStates.MENU;
-                    isLoaded = false;
-                }
-                else LoadLevel();
-            }
+            if (tileList.All(x => x.State == 3)) LoadLevel();
 
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < Globals.physicsIterations; i++)
             {
-                MoveBall(2);
+                MoveBall(Globals.physicsIterations);
                 DetectCollision();
             }
             MovePaddle();
 
 
-            if (!isGameOver) Draw();
-            else
+            if (isGameOver)
             {
                 if (CheckKey(Keys.Space))
                 {
@@ -124,6 +118,21 @@ namespace Arcanoid.States
                     isGameOver = false;
                 }
             }
+            else if (isGameWin)
+            {
+                if (CheckKey(Keys.Space))
+                {
+                    Globals.currentState = Globals.EnStates.MENU;
+                    isLoaded = false;
+                    isGameWin = false;
+                }
+            }
+            else
+            {
+                //if game goes on, then continue drawing
+                Draw();
+            }
+
             oldKeyboardState = keyboardState;
         }
 
@@ -161,25 +170,16 @@ namespace Arcanoid.States
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, "SCORE", new Vector2(gameSpace.Right + 55, 90), Color.White);
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, score.ToString(), new Vector2(gameSpace.Right + 60, 120), Color.White);
 
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, paddleHit.ToString(), new Vector2(gameSpace.Right + 50, 350), Color.White);
 
-            //TEST POWERUPS
-            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 200, 300), new Point(24, 12)), Color.Lime);// paddle plus
-            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 170, 300), new Point(24, 12)), Color.Red);   //paddle minus
-            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 140, 300), new Point(24, 12)), Color.Cyan); //kazdy blok na hita
-            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 110, 300), new Point(24, 12)), Color.Magenta); //life up
-            //Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right - 80, 300), new Point(24, 12)), Color.Gold); //go to next lvl
 
-            //Wizualizacja sekcji paddle
-            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionLeft, Color.Red);
-            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionCenter, Color.Green);
-            //Globals.spriteBatch.Draw(paddleTexture, paddleSectionRight, Color.Magenta);
             Globals.spriteBatch.End();
         }
 
         public void ReleaseBall()
         {
             isBallGlued = false;
-            ball.DirectionY = -1;
+            ball.DirectionY = 1;
         }
 
         #region ContentLoadMethods
@@ -208,7 +208,7 @@ namespace Arcanoid.States
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(3, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 12);
+            ball = new Ball(Globals.physicsIterations, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 12);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
         }
         public void LoadTextures()
@@ -261,7 +261,7 @@ namespace Arcanoid.States
         private void LoadLevel()
         {
             MediaPlayer.Play(levelStart);
-
+            ball.Velocity = Globals.physicsIterations;
             keyRight = Keys.Right;
             keyLeft = Keys.Left;
             paddle.SizeX = 72;
@@ -289,20 +289,20 @@ namespace Arcanoid.States
         #region CollisionMethods
         public void GameSpaceCollision()
         {
-            if (ballBounds.Intersects(gameSpaceLeft))
+            if (ball.PositionX <= gameSpace.Left)
             {
                 if (ball.DirectionX < 0) ball.DirectionX *= -1;
 
             }
-            else if (ballBounds.Intersects(gameSpaceRight))
+            else if (ball.PositionX + ball.Size >= gameSpace.Right)
             {
                 if (ball.DirectionX > 0) ball.DirectionX *= -1;
             }
-            else if (ballBounds.Intersects(gameSpaceTop))
+            else if (ball.PositionY <= gameSpace.Top)
             {
                 if (ball.DirectionY < 0) ball.DirectionY *= -1;
             }
-            else if (ballBounds.Intersects(gameSpaceBottom))
+            else if (ball.PositionY + ball.Size >= gameSpace.Bottom)
             {
                 lostLife.Play(0.5f, 0, 0);
                 isBallGlued = true;
@@ -315,6 +315,7 @@ namespace Arcanoid.States
         }
         public void PaddleCollision()
         {
+            //POWER UP
             foreach (PowerUp power in powerUpList)
             {
                 if (paddleBounds.Intersects(new Rectangle(power.Bounds.X, power.PositionY, 24, 12)))
@@ -324,51 +325,15 @@ namespace Arcanoid.States
                     break;
                 }
             }
-
+            //BALL
             if (ball.DirectionY > 0)
             {
-                if (ballBounds.Intersects(paddleSectionLeft))
+                if (ballBounds.Intersects(paddleBounds))
                 {
-                    objectBounce.Play(0.3f, 0, 0);
-                    if (ball.DirectionX == 0)
-                    {
-                        ball.DirectionX = -0.5f;
-                    }
-                    else if (ball.DirectionX > 0)
-                    {
-                        ball.DirectionX -= 0.25f;
-                    }
-                    else
-                    {
-                        ball.DirectionX = -0.5f;
-                    }
-                    ball.DirectionY *= -1;
-                }
-                else if (ballBounds.Intersects(paddleSectionCenter))
-                {
-                    objectBounce.Play(0.3f, 0, 0);
-                    if (ball.DirectionX == 0)
-                    {
-                        ball.DirectionX -= 0.5f;
-                    }
-                    ball.DirectionY *= -1;
-                }
-                else if (ballBounds.Intersects(paddleSectionRight))
-                {
-                    objectBounce.Play(0.3f, 0, 0);
-                    if (ball.DirectionX == 0)
-                    {
-                        ball.DirectionX = 0.5f;
-                    }
-                    else if (ball.DirectionX < 0)
-                    {
-                        ball.DirectionX += 0.25f;
-                    }
-                    else
-                    {
-                        ball.DirectionX = 0.5f;
-                    }
-                    ball.DirectionY *= -1;
+                    paddleHit = (ballBounds.Center.X - paddleBounds.Center.X) / ((paddle.SizeX / 2 + ball.Size) * 0.9f);
+
+                    ball.DirectionX = (float)Math.Sin(paddleHit) * Globals.physicsIterations;
+                    ball.DirectionY = -(float)Math.Cos(paddleHit) * Globals.physicsIterations;
                 }
             }
 
@@ -434,9 +399,9 @@ namespace Arcanoid.States
         #region ObjectMovingMethods
         public void MoveBall(float multiplier)
         {
-            ballBoundsPrecise = new Vector2(ball.Velocity * ball.DirectionX * multiplier, ball.Velocity * ball.DirectionY * multiplier);
-            ball.PositionX += (int)ballBoundsPrecise.X;
-            ball.PositionY += (int)ballBoundsPrecise.Y;
+            ballPrecisePosition = new Vector2(ball.Velocity * ball.DirectionX / multiplier, ball.Velocity * ball.DirectionY / multiplier);
+            ball.PositionX += (int)ballPrecisePosition.X;
+            ball.PositionY += (int)ballPrecisePosition.Y;
 
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
         }
@@ -492,7 +457,14 @@ namespace Arcanoid.States
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, "Game Over", new Vector2(gameSpace.Center.X - (size.X / 2), 400), Color.White);
             Globals.spriteBatch.End();
             isGameOver = true;
-
+        }
+        public void GameWin()
+        {
+            Vector2 size = Globals.spriteFontScore.MeasureString("You Win!");
+            Globals.spriteBatch.Begin();
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, "You Win!", new Vector2(gameSpace.Center.X - (size.X / 2), 400), Color.White);
+            Globals.spriteBatch.End();
+            isGameWin = true;
         }
         #endregion
 

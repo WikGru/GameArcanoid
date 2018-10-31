@@ -30,11 +30,32 @@
 #begin Levels/lvl1.txt
 /copy:Levels/lvl1.txt;lvl1.txt
 
+#begin Levels/lvl10.txt
+/copy:Levels/lvl10.txt;lvl10.txt
+
 #begin Levels/lvl2.txt
 /copy:Levels/lvl2.txt;lvl2.txt
 
 #begin Levels/lvl3.txt
 /copy:Levels/lvl3.txt;lvl3.txt
+
+#begin Levels/lvl4.txt
+/copy:Levels/lvl4.txt;lvl4.txt
+
+#begin Levels/lvl5.txt
+/copy:Levels/lvl5.txt;lvl5.txt
+
+#begin Levels/lvl6.txt
+/copy:Levels/lvl6.txt;lvl6.txt
+
+#begin Levels/lvl7.txt
+/copy:Levels/lvl7.txt;lvl7.txt
+
+#begin Levels/lvl8.txt
+/copy:Levels/lvl8.txt;lvl8.txt
+
+#begin Levels/lvl9.txt
+/copy:Levels/lvl9.txt;lvl9.txt
 
 #begin Levels/lvl99.txt
 /copy:Levels/lvl99.txt;lvl99.txt
