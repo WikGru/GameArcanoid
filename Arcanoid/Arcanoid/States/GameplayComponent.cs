@@ -50,7 +50,7 @@ namespace Arcanoid.States
         Vector2 ballBoundsPrecise;
         Texture2D ballTexture;
         //BLOCK
-        List<Tile> blockList = new List<Tile>();
+        List<Tile> tileList = new List<Tile>();
         Texture2D tileTexture;
         //GAMESPACE
         Texture2D backgroundTexture;
@@ -81,6 +81,7 @@ namespace Arcanoid.States
         {
             keyboardState = Keyboard.GetState();
             if (CheckKey(Keys.Escape)) Globals.currentState = Globals.EnStates.MENU; //TESTING ONLY finish level on TAB
+            if (CheckKey(Keys.Tab)) tileList.Clear(); ; //TESTING ONLY finish level on TAB
 
             if (!isLoaded) LoadContent();                                               // on first encounter load content
             if (CheckKey(Keys.Space) && ball.DirectionY == 0) ReleaseBall();                                     //release ball from paddle
@@ -94,7 +95,7 @@ namespace Arcanoid.States
             if (lifes < 0) GameOver(); //if lost all lives set gameover
 
             //if only indestructible blocks are left => finish level
-            if (blockList.All(x => x.State == 3))
+            if (tileList.All(x => x.State == 3))
             {
                 if (lvlNumber == 99)
                 {
@@ -135,7 +136,7 @@ namespace Arcanoid.States
             Globals.spriteBatch.Draw(backgroundTexture, new Rectangle(20, 30, gameSpace.Width + 20, gameSpace.Height), Color.White);
             Globals.spriteBatch.Draw(boundsTexture, new Rectangle(10, 20, 380, 580), Color.White);
             //TILES
-            foreach (Tile block in blockList)
+            foreach (Tile block in tileList)
             {
                 if (block.State != 0)
                 {
@@ -254,7 +255,7 @@ namespace Arcanoid.States
                 {
                     if (Globals.BlockMesh[i, j] != 0)
                     {
-                        blockList.Add(new Tile(Globals.BlockMesh[i, j], i, j));
+                        tileList.Add(new Tile(Globals.BlockMesh[i, j], i, j));
                     }
                 }
             }
@@ -376,7 +377,7 @@ namespace Arcanoid.States
         }
         public void TileCollision()
         {
-            foreach (Tile block in blockList)
+            foreach (Tile block in tileList)
             {
                 if (ballBounds.Intersects(block.Bounds))
                 {
@@ -409,7 +410,7 @@ namespace Arcanoid.States
                         }
                         tileDestroyed.Play(0.3f, 0, 0);
                         AddPoints(10);
-                        blockList.Remove(block);
+                        tileList.Remove(block);
                     }
                     else if (block.State < 3)
                     {
