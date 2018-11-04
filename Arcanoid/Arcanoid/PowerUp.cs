@@ -23,26 +23,9 @@ namespace Arcanoid
             positionY = bounds.Top;
         }
 
-        public Globals.enPowerUpType Powerup
-        {
-            get { return powerUp; }
-        }
-
-        public Rectangle Bounds
-        {
-            get { return bounds; }
-            set { bounds = value; }
-        }
-
-        public Color[] Colour
-        {
-            get { return color; }
-        }
-
-        public int PositionY
-        {
-            get { return positionY; }
-            set { positionY = value; }
-        }
+        public Globals.enPowerUpType Powerup { get { return powerUp; } }
+        public Rectangle Bounds { get { return bounds; } set { bounds = value; } }
+        public Color[] Colour { get { return color; } }
+        public int PositionY { get { return positionY; } set { positionY = value; } }
     }
 }

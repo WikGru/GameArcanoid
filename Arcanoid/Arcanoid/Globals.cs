@@ -8,7 +8,7 @@ namespace Arcanoid
     {
         public static int maxLvl = 10;
 
-        public static int physicsIterations = 3;
+        public static int physicsIterations = 5;
 
         public static bool exit = false;
 

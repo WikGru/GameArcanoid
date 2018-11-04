@@ -38,49 +38,11 @@ namespace Arcanoid
             right = new Rectangle(bounds.Right, bounds.Top, 3, bounds.Height);
         }
 
-        public int State
-        {
-            get
-            {
-                return state;
-            }
-            set
-            {
-                state = value;
-            }
-        }
-
-        public int Row
-        {
-            get
-            {
-                return row;
-            }
-        }
-
-        public int Column
-        {
-            get
-            {
-                return column;
-            }
-        }
-
-        public Color[] Colour
-        {
-            get
-            {
-                return color;
-            }
-        }
-
-        public Rectangle Bounds
-        {
-            get
-            {
-                return bounds;
-            }
-        }
+        public int State { get { return state; } set { state = value; } }
+        public int Row { get { return row; } }
+        public int Column { get { return column; } }
+        public Color[] Colour { get { return color; } }
+        public Rectangle Bounds { get { return bounds; } }
 
         public Rectangle Top { get { return top; } set { top = value; } }
         public Rectangle Bottom { get { return bottom; } set { bottom = value; } }

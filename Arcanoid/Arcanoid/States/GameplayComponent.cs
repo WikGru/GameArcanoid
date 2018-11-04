@@ -29,6 +29,9 @@ namespace Arcanoid.States
         Keys keyRight = Keys.Right;
         Keys keyLeft = Keys.Left;
 
+        DateTime oldUpdateTIme;
+        DateTime updateTime;
+        int timeElapsed;
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
 
@@ -95,8 +98,8 @@ namespace Arcanoid.States
             if (isBallGlued)
             {
                 ball.DirectionY = 0;
-                ball.PositionX = paddleBounds.Center.X - ball.Size / 2;    //glue ball to paddle
-                ball.PositionY = Globals.graphics.PreferredBackBufferHeight - 40 - ball.Size;
+                ballPrecisePosition.X = paddleBounds.Center.X - ball.Size / 2;    //glue ball to paddle
+                ballPrecisePosition.Y = Globals.graphics.PreferredBackBufferHeight - 40 - ball.Size;
             }
 
             if (lifes < 0) GameOver(); //if lost all lives set gameover
@@ -104,6 +107,9 @@ namespace Arcanoid.States
             //if only indestructible blocks are left => finish level
             if (tileList.All(x => x.State == 3)) LoadLevel();
 
+
+            updateTime = DateTime.Now;
+            timeElapsed = updateTime.Millisecond - oldUpdateTIme.Millisecond;
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
             for (int i = 0; i < Globals.physicsIterations; i++)
             {
@@ -174,8 +180,9 @@ namespace Arcanoid.States
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, "SCORE", new Vector2(gameSpace.Right + 55, 90), Color.White);
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, score.ToString(), new Vector2(gameSpace.Right + 60, 120), Color.White);
 
-            Globals.spriteBatch.DrawString(Globals.spriteFontScore, paddleHit.ToString(), new Vector2(gameSpace.Right + 50, 350), Color.White);
-
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, ball.DirectionY.ToString(), new Vector2(gameSpace.Right + 60, 300), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, ball.DirectionX.ToString(), new Vector2(gameSpace.Right + 60, 350), Color.White);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScore, ballBounds.Center.X.ToString() + "\n" + ballBounds.Center.Y.ToString(), new Vector2(gameSpace.Right + 60, 400), Color.White);
 
             Globals.spriteBatch.End();
         }
@@ -212,8 +219,10 @@ namespace Arcanoid.States
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(Globals.physicsIterations, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 12);
+            ball = new Ball(6, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 12);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
+            ballPrecisePosition.X = ball.PositionX;
+            ballPrecisePosition.Y = ball.PositionY;
         }
         public void LoadTextures()
         {
@@ -266,7 +275,7 @@ namespace Arcanoid.States
         {
             tileList.Clear();
             MediaPlayer.Play(levelStart);
-            ball.Velocity = Globals.physicsIterations;
+            //ball.Velocity = Globals.physicsIterations;
             keyRight = Keys.Right;
             keyLeft = Keys.Left;
             paddle.SizeX = 72;
@@ -337,51 +346,50 @@ namespace Arcanoid.States
                 if (ballBounds.Intersects(paddleBounds))
                 {
                     paddleHit = (ballBounds.Center.X - paddleBounds.Center.X) / ((paddle.SizeX / 2 + ball.Size) * 0.9f);
-
-                    ball.DirectionX = (float)Math.Sin(paddleHit) * Globals.physicsIterations;
-                    ball.DirectionY = -(float)Math.Cos(paddleHit) * Globals.physicsIterations;
+                    ball.DirectionX = (float)Math.Sin(paddleHit) * ball.Velocity / Globals.physicsIterations;
+                    ball.DirectionY = -(float)Math.Cos(paddleHit)* ball.Velocity / Globals.physicsIterations;
                 }
             }
 
         }
         public void TileCollision()
         {
-            foreach (Tile block in tileList)
+            foreach (Tile tile in tileList)
             {
-                if (ballBounds.Intersects(block.Bounds))
+                if (ballBounds.Intersects(tile.Bounds))
                 {
-                    if (ballBounds.Intersects(block.Top) && ball.DirectionY > 0)
+                    if (ballBounds.Intersects(tile.Top) && ball.DirectionY > 0)
                     {
-                        if (block.State != 3) block.State--;
+                        if (tile.State != 3) tile.State--;
                         ball.DirectionY *= -1;
                     }
-                    else if (ballBounds.Intersects(block.Bottom) && ball.DirectionY < 0)
+                    else if (ballBounds.Intersects(tile.Bottom) && ball.DirectionY < 0)
                     {
-                        if (block.State != 3) block.State--;
+                        if (tile.State != 3) tile.State--;
                         ball.DirectionY *= -1;
                     }
-                    else if (ballBounds.Intersects(block.Left) && ball.DirectionX > 0)
+                    else if (ballBounds.Intersects(tile.Left) && ball.DirectionX > 0)
                     {
-                        if (block.State != 3) block.State--;
+                        if (tile.State != 3) tile.State--;
                         ball.DirectionX *= -1;
                     }
-                    else if (ballBounds.Intersects(block.Right) && ball.DirectionX < 0)
+                    else if (ballBounds.Intersects(tile.Right) && ball.DirectionX < 0)
                     {
-                        if (block.State != 3) block.State--;
+                        if (tile.State != 3) tile.State--;
                         ball.DirectionX *= -1;
                     }
 
-                    if (block.State == 0)
+                    if (tile.State == 0)
                     {
-                        if (rand.Next(1, 4) == 1)
+                        if (rand.Next(1, 8) == 1)
                         {
-                            powerUpList.Add(new PowerUp(block.Bounds));
+                            powerUpList.Add(new PowerUp(tile.Bounds));
                         }
                         tileDestroyed.Play(0.3f, 0, 0);
                         AddPoints(10);
-                        tileList.Remove(block);
+                        tileList.Remove(tile);
                     }
-                    else if (block.State < 3)
+                    else if (tile.State < 3)
                     {
                         objectBounce.Play(0.3f, 0, 0);
                         AddPoints(2);
@@ -405,9 +413,11 @@ namespace Arcanoid.States
         #region ObjectMovingMethods
         public void MoveBall(float multiplier)
         {
-            ballPrecisePosition = new Vector2(ball.Velocity * ball.DirectionX / multiplier, ball.Velocity * ball.DirectionY / multiplier);
-            ball.PositionX += (int)ballPrecisePosition.X;
-            ball.PositionY += (int)ballPrecisePosition.Y;
+            ballPrecisePosition.X += (ball.Velocity * ball.DirectionX)/ multiplier;
+            ballPrecisePosition.Y += (ball.Velocity * ball.DirectionY)/ multiplier;
+
+            ball.PositionX = (int)ballPrecisePosition.X;
+            ball.PositionY = (int)ballPrecisePosition.Y;
 
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
         }
@@ -453,7 +463,7 @@ namespace Arcanoid.States
             if (++lifes > 9)
             {
                 lifes = 9;
-                score += 100;
+                score += 300;
             }
         }
         public void GameOver()

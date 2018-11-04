@@ -21,75 +21,11 @@ namespace Arcanoid
             this.positionY = positionY;
         }
 
-        public float Velocity
-        {
-            get
-            {
-                return velocity;
-            }
-            set
-            {
-                velocity = value;
-            }
-        }
-
-        public int Size
-        {
-            get
-            {
-                return size;
-            }
-            set
-            {
-                size = value;
-            }
-        }
-
-        public float DirectionX
-        {
-            get
-            {
-                return directionX;
-            }
-            set
-            {
-                directionX = value;
-            }
-        }
-
-        public float DirectionY
-        {
-            get
-            {
-                return directionY;
-            }
-            set
-            {
-                directionY = value;
-            }
-        }
-
-        public int PositionX
-        {
-            get
-            {
-                return positionX;
-            }
-            set
-            {
-                positionX = value;
-            }
-        }
-        public int PositionY
-        {
-            get
-            {
-                return positionY;
-            }
-            set
-            {
-                positionY = value;
-            }
-        }
+        public float Velocity { get { return velocity; } set { velocity = value; } }
+        public int Size { get { return size; } set { size = value; } }
+        public float DirectionX { get { return directionX; } set { directionX = value; } }
+        public float DirectionY { get { return directionY; } set { directionY = value; } }
+        public int PositionX { get { return positionX; } set { positionX = value; } }
+        public int PositionY { get { return positionY; } set { positionY = value; } }
     }
 }

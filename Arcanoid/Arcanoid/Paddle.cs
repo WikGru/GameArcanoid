@@ -19,45 +19,8 @@ namespace Arcanoid
             this.positionX = positionX;
         }
 
-        public int SizeX
-        {
-            get
-            {
-                return sizeX;
-            }
-
-            set
-            {
-                sizeX = value;
-            }
-        }
-
-
-        public int Velocity
-        {
-            get
-            {
-                return velocity;
-            }
-
-            set
-            {
-                velocity = value;
-            }
-        }
-
-
-        public int PositionX
-        {
-            get
-            {
-                return positionX;
-            }
-
-            set
-            {
-                positionX = value;
-            }
-        }
+        public int SizeX { get { return sizeX; } set { sizeX = value; } }
+        public int Velocity { get { return velocity; } set { velocity = value; } }
+        public int PositionX { get { return positionX; } set { positionX = value; } }
     }
 }
