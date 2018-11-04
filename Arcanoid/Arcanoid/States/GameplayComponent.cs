@@ -29,9 +29,6 @@ namespace Arcanoid.States
         Keys keyRight = Keys.Right;
         Keys keyLeft = Keys.Left;
 
-        DateTime oldUpdateTIme;
-        DateTime updateTime;
-        int timeElapsed;
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
 
@@ -71,6 +68,7 @@ namespace Arcanoid.States
         SoundEffect powerUp;
         SoundEffect powerDown;
         //POWER UPS
+        PowerUp powerUpTemplate = new PowerUp(new Rectangle(1, 1, 1, 1));
         Texture2D powerUpTexture;
         List<PowerUp> powerUpList = new List<PowerUp>();
 
@@ -94,10 +92,10 @@ namespace Arcanoid.States
             if (CheckKey(Keys.Tab)) tileList.Clear(); ; //TESTING ONLY finish level on TAB
 
             if (!isLoaded) LoadContent();                                               // on first encounter load content
-            if (CheckKey(Keys.Space) && ball.DirectionY == 0) ReleaseBall();                                     //release ball from paddle
+            if (CheckKey(Keys.Space) && ball.Direction.Y == 0) ReleaseBall();                                     //release ball from paddle
             if (isBallGlued)
             {
-                ball.DirectionY = 0;
+                ball.Direction = new Vector2(ball.Direction.X, 0);
                 ballPrecisePosition.X = paddleBounds.Center.X - ball.Size / 2;    //glue ball to paddle
                 ballPrecisePosition.Y = Globals.graphics.PreferredBackBufferHeight - 40 - ball.Size;
             }
@@ -107,9 +105,6 @@ namespace Arcanoid.States
             //if only indestructible blocks are left => finish level
             if (tileList.All(x => x.State == 3)) LoadLevel();
 
-
-            updateTime = DateTime.Now;
-            timeElapsed = updateTime.Millisecond - oldUpdateTIme.Millisecond;
             // ta petle zostaw na razie bo tu ma byc liczone z kwantu czasu coś jeszcze nwm jak xD
             for (int i = 0; i < Globals.physicsIterations; i++)
             {
@@ -180,9 +175,21 @@ namespace Arcanoid.States
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, "SCORE", new Vector2(gameSpace.Right + 55, 90), Color.White);
             Globals.spriteBatch.DrawString(Globals.spriteFontScore, score.ToString(), new Vector2(gameSpace.Right + 60, 120), Color.White);
 
-            Globals.spriteBatch.DrawString(Globals.spriteFontScore, ball.DirectionY.ToString(), new Vector2(gameSpace.Right + 60, 300), Color.White);
-            Globals.spriteBatch.DrawString(Globals.spriteFontScore, ball.DirectionX.ToString(), new Vector2(gameSpace.Right + 60, 350), Color.White);
-            Globals.spriteBatch.DrawString(Globals.spriteFontScore, ballBounds.Center.X.ToString() + "\n" + ballBounds.Center.Y.ToString(), new Vector2(gameSpace.Right + 60, 400), Color.White);
+            //POWERUPS GUIDE
+            Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right + 30, 300), new Point(24, 12)), Color.Lime);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScoreSmall, "bigger paddle", new Vector2(gameSpace.Right + 60, 300-6), Color.White);
+
+            Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right + 30, 330), new Point(24, 12)), Color.Red);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScoreSmall, "smaller paddle", new Vector2(gameSpace.Right + 60, 330-6), Color.White);
+
+            Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right + 30, 360), new Point(24, 12)), Color.Magenta);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScoreSmall, "life up", new Vector2(gameSpace.Right + 60, 360-6), Color.White);
+
+            Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right + 30, 390), new Point(24, 12)), Color.Cyan);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScoreSmall, "invert controls", new Vector2(gameSpace.Right + 60, 390-6), Color.White);
+
+            Globals.spriteBatch.Draw(powerUpTexture, new Rectangle(new Point(gameSpace.Right + 30, 420), new Point(24, 12)), Color.Gold);
+            Globals.spriteBatch.DrawString(Globals.spriteFontScoreSmall, "bonus points", new Vector2(gameSpace.Right + 60, 420-6), Color.White);
 
             Globals.spriteBatch.End();
         }
@@ -190,7 +197,7 @@ namespace Arcanoid.States
         public void ReleaseBall()
         {
             isBallGlued = false;
-            ball.DirectionY = 1;
+            ball.Direction = new Vector2(ball.Direction.X, 1);
         }
 
         #region ContentLoadMethods
@@ -219,10 +226,9 @@ namespace Arcanoid.States
             paddleBounds = new Rectangle(paddle.PositionX, Globals.graphics.PreferredBackBufferHeight - 40, paddle.SizeX, 15);
 
             //ball
-            ball = new Ball(6, 12, 0, 0, paddleBounds.Center.X, paddleBounds.Top - 12);
+            ball = new Ball(2.4f, 12, new Vector2(0, 0), paddleBounds.Center.X, paddleBounds.Top - 12);
             ballBounds = new Rectangle(ball.PositionX, ball.PositionY, ball.Size, ball.Size);
-            ballPrecisePosition.X = ball.PositionX;
-            ballPrecisePosition.Y = ball.PositionY;
+            ballPrecisePosition = new Vector2(ball.PositionX, ball.PositionY);
         }
         public void LoadTextures()
         {
@@ -280,7 +286,7 @@ namespace Arcanoid.States
             keyLeft = Keys.Left;
             paddle.SizeX = 72;
             powerUpList.Clear();
-            ball.DirectionY = 0;
+            ball.Direction *= new Vector2(1, 0);
             ball.PositionY = paddleBounds.Top - ball.Size;
             lvlNumber++;
             isBallGlued = true;
@@ -305,20 +311,19 @@ namespace Arcanoid.States
         {
             if (ball.PositionX <= gameSpace.Left)
             {
-                if (ball.DirectionX < 0) ball.DirectionX *= -1;
-
+                if (ball.Direction.X < 0) ball.Direction *= new Vector2(-1, 1);
             }
             else if (ball.PositionX + ball.Size >= gameSpace.Right)
             {
-                if (ball.DirectionX > 0) ball.DirectionX *= -1;
+                if (ball.Direction.X > 0) ball.Direction *= new Vector2(-1, 1);
             }
             else if (ball.PositionY <= gameSpace.Top)
             {
-                if (ball.DirectionY < 0) ball.DirectionY *= -1;
+                if (ball.Direction.Y < 0) ball.Direction *= new Vector2(1, -1);
             }
             else if (ball.PositionY + ball.Size >= gameSpace.Bottom)
             {
-                ball.DirectionY *= -1;
+                ball.Direction *= new Vector2(1, -1);
                 lostLife.Play(0.5f, 0, 0);
                 isBallGlued = true;
                 keyRight = Keys.Right;
@@ -341,13 +346,14 @@ namespace Arcanoid.States
                 }
             }
             //BALL
-            if (ball.DirectionY > 0)
+            if (ball.Direction.Y > 0)
             {
                 if (ballBounds.Intersects(paddleBounds))
                 {
+                    ball.Velocity += 0.02f;
+                    if (ball.Velocity > 4.2f) ball.Velocity = 4.2f;
                     paddleHit = (ballBounds.Center.X - paddleBounds.Center.X) / ((paddle.SizeX / 2 + ball.Size) * 0.9f);
-                    ball.DirectionX = (float)Math.Sin(paddleHit) * ball.Velocity / Globals.physicsIterations;
-                    ball.DirectionY = -(float)Math.Cos(paddleHit)* ball.Velocity / Globals.physicsIterations;
+                    ball.Direction = new Vector2((float)Math.Sin(paddleHit) * ball.Velocity, -(float)Math.Cos(paddleHit) * ball.Velocity);
                 }
             }
 
@@ -358,25 +364,25 @@ namespace Arcanoid.States
             {
                 if (ballBounds.Intersects(tile.Bounds))
                 {
-                    if (ballBounds.Intersects(tile.Top) && ball.DirectionY > 0)
+                    if (ballBounds.Intersects(tile.Top) && ball.Direction.Y > 0)
                     {
                         if (tile.State != 3) tile.State--;
-                        ball.DirectionY *= -1;
+                        ball.Direction *= new Vector2(1, -1);
                     }
-                    else if (ballBounds.Intersects(tile.Bottom) && ball.DirectionY < 0)
+                    else if (ballBounds.Intersects(tile.Bottom) && ball.Direction.Y < 0)
                     {
                         if (tile.State != 3) tile.State--;
-                        ball.DirectionY *= -1;
+                        ball.Direction *= new Vector2(1, -1);
                     }
-                    else if (ballBounds.Intersects(tile.Left) && ball.DirectionX > 0)
+                    else if (ballBounds.Intersects(tile.Left) && ball.Direction.X > 0)
                     {
                         if (tile.State != 3) tile.State--;
-                        ball.DirectionX *= -1;
+                        ball.Direction *= new Vector2(-1, 1);
                     }
-                    else if (ballBounds.Intersects(tile.Right) && ball.DirectionX < 0)
+                    else if (ballBounds.Intersects(tile.Right) && ball.Direction.X < 0)
                     {
                         if (tile.State != 3) tile.State--;
-                        ball.DirectionX *= -1;
+                        ball.Direction *= new Vector2(-1, 1);
                     }
 
                     if (tile.State == 0)
@@ -413,8 +419,8 @@ namespace Arcanoid.States
         #region ObjectMovingMethods
         public void MoveBall(float multiplier)
         {
-            ballPrecisePosition.X += (ball.Velocity * ball.DirectionX)/ multiplier;
-            ballPrecisePosition.Y += (ball.Velocity * ball.DirectionY)/ multiplier;
+            ballPrecisePosition.X += (ball.Velocity * ball.Direction.X) / multiplier;
+            ballPrecisePosition.Y += (ball.Velocity * ball.Direction.Y) / multiplier;
 
             ball.PositionX = (int)ballPrecisePosition.X;
             ball.PositionY = (int)ballPrecisePosition.Y;
@@ -457,6 +463,7 @@ namespace Arcanoid.States
         public void LoseLife()
         {
             lifes--;
+            ball.Velocity = 2.4f;
         }
         public void AddLife()
         {

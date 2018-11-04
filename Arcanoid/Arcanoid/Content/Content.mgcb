@@ -13,19 +13,26 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Fonts/Font.spritefont
+#begin Fonts/fontMenu.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/Font.spritefont;Font.spritefont
+/build:Fonts/fontMenu.spritefont
 
-#begin Fonts/Font1.spritefont
+#begin Fonts/fontScore.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/Font1.spritefont;Font1.spritefont
+/build:Fonts/fontScore.spritefont
+
+#begin Fonts/fontScoreSmall.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/fontScoreSmall.spritefont
 
 #begin Levels/lvl1.txt
 /copy:Levels/lvl1.txt;lvl1.txt

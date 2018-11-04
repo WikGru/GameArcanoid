@@ -8,12 +8,13 @@ namespace Arcanoid
     {
         public static int maxLvl = 10;
 
-        public static int physicsIterations = 5;
+        public static int physicsIterations = 10;
 
         public static bool exit = false;
 
-        public static SpriteFont spriteFontBig = null;
+        public static SpriteFont spriteFontMenu = null;
         public static SpriteFont spriteFontScore = null;
+        public static SpriteFont spriteFontScoreSmall = null;
         public static SpriteBatch spriteBatch = null;
         public static ContentManager contentManager = null;
         public static GraphicsDeviceManager graphics = null;
@@ -27,7 +28,6 @@ namespace Arcanoid
             EXIT
         }
 
-        
         public enum enPowerUpType
         {
             PADDLE_PLUS,
@@ -36,7 +36,6 @@ namespace Arcanoid
             INVERT_CONTROLS,
             BONUS_POINTS_BIG
         }
-
 
         public static int[,] tileMesh = new int[22, 11]; //[row,column]
         public static Vector2 firstBlock = new Vector2(30, 60);
